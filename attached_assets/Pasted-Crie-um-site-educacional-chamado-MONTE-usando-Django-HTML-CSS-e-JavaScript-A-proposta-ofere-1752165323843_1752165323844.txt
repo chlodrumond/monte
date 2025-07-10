@@ -1,0 +1,128 @@
+Crie um site educacional chamado **MONTE** usando Django, HTML, CSS e JavaScript. A proposta é oferecer um espaço colaborativo de compartilhamento de materiais acadêmicos, com gamificação simbólica baseada em montanhas e identidade visual refinada.
+
+---
+
+🔹 Identidade Visual:
+
+1. Use a imagem real do logo, chamada **logo-monte.png**, localizada em `static/img/`. Não tente recriar — apenas exiba a imagem.
+2. Cores oficiais:
+   - Azul-marinho: `#0B1C2D` (cor de fundo)
+   - Dourado: `#CEB974` (textos e detalhes)
+3. Tipografia elegante, semelhante à fonte “Seasons” ou uma serifada refinada.
+4. Layout moderno, organizado, com boa responsividade e espaçamento.
+
+---
+
+🔹 Estrutura de Páginas:
+
+1. **Homepage (index.html)**:
+   - Fundo azul-marinho com logo centralizado.
+   - Dois parágrafos institucionais abaixo do logo.
+   - Menu hamburguer (ícone com três traços) no canto superior direito.
+   - Ao clicar, exibe uma faixa lateral (menu lateral) com botão “Acessar” → leva para a página de login.
+
+2. **Página de Login (login.html)**:
+   - Tela dividida horizontalmente:
+     - Lado esquerdo: fundo azul-marinho com o logo centralizado.
+     - Lado direito: fundo branco com título “Retome Seu Progresso”.
+   - Campos: Email (validação para `@puc-rio.br`) e Senha.
+   - Botão azul-marinho: “Acessar”.
+
+3. **Página de Cadastro (signup.html)**:
+   - Mesmo estilo da tela de login.
+   - Campos: Nome, Email, Senha, Curso.
+   - Botão: “Cadastrar”.
+
+4. **Perfil do Usuário (perfil.html)**:
+   - Exibe nome, curso, materiais enviados, e **altitude acumulada**.
+   - Mostra a montanha atual que o usuário alcançou, com nome, imagem (opcional) e faixa de pontos.
+   - Lista visual das montanhas já superadas.
+
+5. **Upload de Materiais (upload.html)**:
+   - Formulário com: título, descrição, tipo (resumo, apostila, etc.), matéria, série e upload do arquivo.
+   - Botão: “Enviar Material”.
+
+6. **Busca e Conteúdo (search.html)**:
+   - Campo de busca + filtros por matéria, tipo e série.
+   - Resultados com visual limpo: título, descrição, botão de download e avaliações.
+
+7. **Página de Material**:
+   - Exibe detalhes do conteúdo.
+   - Seção de comentários e avaliações.
+   - Apenas usuários logados podem comentar.
+
+---
+
+🔹 Funcionalidades do Sistema:
+
+1. **Autenticação Django**:
+   - Cadastro, login e logout de usuários.
+   - Apenas usuários autenticados podem acessar páginas restritas.
+
+2. **Validação de Email**:
+   - Apenas e-mails com final `@puc-rio.br` são aceitos no cadastro e login.
+
+3. **Sistema de Recompensas por Altitude (não consome pontos)**:
+   - Usuários acumulam “altitude” simbólica conforme interagem:
+     - Upload de material: +50m
+     - Comentário: +10m
+     - Avaliação recebida: +5m
+   - Ao atingir certas faixas, o usuário conquista o cume de uma nova montanha.
+   - Montanhas:
+
+     - Pedra Bonita (0–49m)
+     - Pico da Tijuca (50–149m)
+     - Machu Picchu (150–299m)
+     - Monte Roraima (300–499m)
+     - Kilimanjaro (500–799m)
+     - Monte Fuji (800–1199m)
+     - Mont Blanc (1200–1999m)
+     - Everest (2000m+)
+
+   - Exibir no perfil do usuário:
+     - Montanha atual
+     - Altitude total
+     - Histórico visual das montanhas conquistadas
+   - Nenhuma ação custa pontos. É apenas um sistema simbólico de reconhecimento.
+
+4. **Comentários e Avaliações**:
+   - Usuários autenticados podem comentar e avaliar materiais.
+   - Os conteúdos com mais avaliações positivas ganham destaque.
+
+5. **Curadoria Comunitária**:
+   - A ordenação dos materiais é feita com base nas interações da comunidade.
+
+6. **Notificações Simples**:
+   - Exibir mensagens no painel do usuário como:
+     - “Você alcançou a montanha Machu Picchu!”
+     - “Seu material foi comentado”
+     - “Novo conteúdo da sua matéria favorita foi enviado!”
+
+7. **Botões de Compartilhamento**:
+   - WhatsApp, Instagram e Twitter nos materiais.
+
+---
+
+🔹 Estrutura Esperada:
+
+- Diretório `templates/` com: `index.html`, `login.html`, `signup.html`, `perfil.html`, `upload.html`, `search.html`, etc.
+- Diretório `static/` com:
+  - `style.css`
+  - `script.js`
+  - `img/logo-monte.png`
+- Models Django:
+  - `UserProfile`
+  - `Material`
+  - `Comentario`
+  - `MountainLevel` (níveis de altitude)
+- Views e rotas organizadas.
+- Layout bonito, estruturado e navegável — como no início do projeto.
+
+---
+
+🔸 Observação:
+Corrija o que aconteceu anteriormente — o site estava ficando branco e desorganizado. Garanta que o estilo bonito, escuro, elegante e responsivo seja mantido.
+
+---
+
+Gere o projeto completo com os arquivos organizados e prontos para importar no VS Code com Django.
