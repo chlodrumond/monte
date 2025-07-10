@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     MountainLevel, UserProfile, Material, Comentario, 
-    Avaliacao, Notificacao, MountainAchievement
+    Avaliacao, Notificacao, MountainAchievement, SocialShare, MaterialFavorito
 )
 
 
@@ -20,10 +20,11 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 @admin.register(Material)
 class MaterialAdmin(admin.ModelAdmin):
-    list_display = ['titulo', 'autor', 'tipo', 'materia', 'serie', 'data_upload', 'downloads']
-    list_filter = ['tipo', 'serie', 'data_upload']
-    search_fields = ['titulo', 'descricao', 'materia', 'autor__username']
+    list_display = ['titulo', 'autor', 'tipo', 'materia', 'serie', 'data_upload', 'downloads', 'visualizacoes', 'destaque']
+    list_filter = ['tipo', 'serie', 'data_upload', 'destaque']
+    search_fields = ['titulo', 'descricao', 'materia', 'autor__username', 'tags']
     date_hierarchy = 'data_upload'
+    list_editable = ['destaque']
 
 
 @admin.register(Comentario)
@@ -50,3 +51,17 @@ class NotificacaoAdmin(admin.ModelAdmin):
 class MountainAchievementAdmin(admin.ModelAdmin):
     list_display = ['user_profile', 'mountain', 'achieved_at']
     list_filter = ['mountain', 'achieved_at']
+
+
+@admin.register(SocialShare)
+class SocialShareAdmin(admin.ModelAdmin):
+    list_display = ['material', 'usuario', 'plataforma', 'data_compartilhamento']
+    list_filter = ['plataforma', 'data_compartilhamento']
+    search_fields = ['material__titulo', 'usuario__username']
+
+
+@admin.register(MaterialFavorito)
+class MaterialFavoritoAdmin(admin.ModelAdmin):
+    list_display = ['usuario', 'material', 'data_favoritado']
+    list_filter = ['data_favoritado']
+    search_fields = ['usuario__username', 'material__titulo']

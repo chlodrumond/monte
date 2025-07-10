@@ -2,7 +2,9 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Q, Count, Avg
+from django.db.models import Q, Count, Avg, F
+from django.db.models.functions import Coalesce
+from django.db import models
 from django.http import HttpResponse, Http404
 from django.core.paginator import Paginator
 from django.contrib.auth.models import User
@@ -11,7 +13,8 @@ from django.views.decorators.csrf import csrf_protect
 
 from .models import (
     Material, Comentario, Avaliacao, UserProfile, 
-    MountainLevel, Notificacao, MountainAchievement
+    MountainLevel, Notificacao, MountainAchievement,
+    SocialShare, MaterialFavorito
 )
 from .forms import (
     CustomUserCreationForm, CustomLoginForm, MaterialForm,
@@ -315,3 +318,141 @@ def logout_view(request):
     logout(request)
     messages.success(request, 'Logout realizado com sucesso!')
     return redirect('index')
+
+
+@login_required
+def favoritar_material(request, material_id):
+    """Adicionar/remover material dos favoritos"""
+    material = get_object_or_404(Material, id=material_id)
+    favorito, created = MaterialFavorito.objects.get_or_create(
+        usuario=request.user,
+        material=material
+    )
+    
+    if not created:
+        favorito.delete()
+        messages.success(request, 'Material removido dos favoritos.')
+    else:
+        messages.success(request, 'Material adicionado aos favoritos!')
+    
+    return redirect('detalhe_material', material_id=material_id)
+
+
+@login_required
+def meus_favoritos(request):
+    """Lista de materiais favoritos do usuário"""
+    favoritos = MaterialFavorito.objects.filter(usuario=request.user).select_related('material', 'material__autor')
+    
+    paginator = Paginator(favoritos, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'favoritos': page_obj,
+        'page_obj': page_obj,
+    }
+    return render(request, 'materials/favoritos.html', context)
+
+
+def compartilhar_material(request, material_id, plataforma):
+    """Registrar compartilhamento social e redirecionar"""
+    material = get_object_or_404(Material, id=material_id)
+    
+    # Registrar o compartilhamento
+    SocialShare.objects.create(
+        material=material,
+        usuario=request.user if request.user.is_authenticated else None,
+        plataforma=plataforma
+    )
+    
+    # URLs para compartilhamento
+    material_url = request.build_absolute_uri(
+        f"/materiais/{material_id}/"
+    )
+    texto = f"Confira este material: {material.titulo}"
+    
+    urls = {
+        'whatsapp': f"https://wa.me/?text={texto} - {material_url}",
+        'twitter': f"https://twitter.com/intent/tweet?text={texto}&url={material_url}",
+        'facebook': f"https://www.facebook.com/sharer/sharer.php?u={material_url}",
+        'email': f"mailto:?subject={material.titulo}&body={texto} - {material_url}",
+    }
+    
+    if plataforma in urls:
+        return redirect(urls[plataforma])
+    
+    return redirect('detalhe_material', material_id=material_id)
+
+
+def materiais_populares(request):
+    """Lista de materiais mais populares baseada em algoritmo de curadoria"""
+    # Materiais ordenados por popularidade (visualizações, downloads, avaliações)
+    materiais = Material.objects.annotate(
+        media_avaliacoes=Avg('avaliacao__nota'),
+        total_avaliacoes=Count('avaliacao'),
+        popularidade_score=(
+            F('visualizacoes') * 0.1 + 
+            F('downloads') * 0.5 + 
+            Coalesce(F('media_avaliacoes'), 0) * 2 +
+            F('total_avaliacoes') * 0.3
+        )
+    ).order_by('-popularidade_score', '-data_upload')
+    
+    # Filtros opcionais
+    tipo = request.GET.get('tipo')
+    serie = request.GET.get('serie')
+    
+    if tipo:
+        materiais = materiais.filter(tipo=tipo)
+    if serie:
+        materiais = materiais.filter(serie=serie)
+    
+    paginator = Paginator(materiais, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'materiais': page_obj,
+        'page_obj': page_obj,
+        'titulo': 'Materiais Populares',
+        'tipo_atual': tipo,
+        'serie_atual': serie,
+        'tipos': Material.TIPO_CHOICES,
+        'series': Material.SERIE_CHOICES,
+    }
+    return render(request, 'materials/populares.html', context)
+
+
+def materiais_destaque(request):
+    """Materiais em destaque selecionados pela curadoria"""
+    materiais = Material.objects.filter(destaque=True).select_related('autor').order_by('-data_upload')
+    
+    paginator = Paginator(materiais, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'materiais': page_obj,
+        'page_obj': page_obj,
+        'titulo': 'Materiais em Destaque',
+    }
+    return render(request, 'materials/destaque.html', context)
+
+
+@login_required
+def notificacoes_usuario(request):
+    """Lista todas as notificações do usuário"""
+    notificacoes = Notificacao.objects.filter(usuario=request.user).order_by('-data_criacao')
+    
+    # Marcar todas como lidas ao visualizar
+    notificacoes.filter(lida=False).update(lida=True)
+    
+    paginator = Paginator(notificacoes, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'notificacoes': page_obj,
+        'page_obj': page_obj,
+    }
+    return render(request, 'materials/notificacoes.html', context)

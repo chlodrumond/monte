@@ -129,6 +129,9 @@ class Material(models.Model):
     data_upload = models.DateTimeField(auto_now_add=True, verbose_name="Data de Upload")
     downloads = models.IntegerField(default=0, verbose_name="Downloads")
     aprovacoes = models.IntegerField(default=0, verbose_name="Aprovações")
+    visualizacoes = models.IntegerField(default=0, verbose_name="Visualizações")
+    destaque = models.BooleanField(default=False, verbose_name="Material em Destaque")
+    tags = models.CharField(max_length=500, blank=True, verbose_name="Tags (separadas por vírgula)")
     
     class Meta:
         verbose_name = "Material"
@@ -148,6 +151,22 @@ class Material(models.Model):
     def total_avaliacoes(self):
         """Retorna o total de avaliações"""
         return self.avaliacao_set.count()
+    
+    def incrementar_visualizacao(self):
+        """Incrementa o contador de visualizações"""
+        self.visualizacoes += 1
+        self.save(update_fields=['visualizacoes'])
+    
+    def calcular_popularidade(self):
+        """Calcula score de popularidade baseado em visualizações, downloads e avaliações"""
+        rating = self.rating_medio() or 0
+        return (self.visualizacoes * 0.1) + (self.downloads * 0.5) + (rating * 2) + (self.total_avaliacoes() * 0.3)
+    
+    def get_tags_list(self):
+        """Retorna lista de tags"""
+        if self.tags:
+            return [tag.strip() for tag in self.tags.split(',') if tag.strip()]
+        return []
 
 
 class Comentario(models.Model):
@@ -221,3 +240,44 @@ def create_user_profile(sender, instance, created, **kwargs):
 def save_user_profile(sender, instance, **kwargs):
     if hasattr(instance, 'profile'):
         instance.profile.save()
+
+
+class SocialShare(models.Model):
+    """Modelo para rastrear compartilhamentos sociais"""
+    PLATFORM_CHOICES = [
+        ('whatsapp', 'WhatsApp'),
+        ('twitter', 'Twitter'),
+        ('facebook', 'Facebook'),
+        ('email', 'Email'),
+        ('link', 'Link Direto'),
+    ]
+    
+    material = models.ForeignKey(Material, on_delete=models.CASCADE, verbose_name="Material")
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Usuário")
+    plataforma = models.CharField(max_length=20, choices=PLATFORM_CHOICES, verbose_name="Plataforma")
+    data_compartilhamento = models.DateTimeField(auto_now_add=True, verbose_name="Data do Compartilhamento")
+    
+    class Meta:
+        verbose_name = "Compartilhamento Social"
+        verbose_name_plural = "Compartilhamentos Sociais"
+        ordering = ['-data_compartilhamento']
+    
+    def __str__(self):
+        usuario_nome = self.usuario.get_full_name() if self.usuario else "Anônimo"
+        return f"{usuario_nome} - {self.material.titulo} via {self.get_plataforma_display()}"
+
+
+class MaterialFavorito(models.Model):
+    """Materiais favoritados pelos usuários"""
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Usuário")
+    material = models.ForeignKey(Material, on_delete=models.CASCADE, verbose_name="Material")
+    data_favoritado = models.DateTimeField(auto_now_add=True, verbose_name="Data Favoritado")
+    
+    class Meta:
+        unique_together = ['usuario', 'material']
+        verbose_name = "Material Favorito"
+        verbose_name_plural = "Materiais Favoritos"
+        ordering = ['-data_favoritado']
+    
+    def __str__(self):
+        return f"{self.usuario.get_full_name()} - {self.material.titulo}"

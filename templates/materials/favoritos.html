@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Meus Favoritos - Monte{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header mb-4">
+                <h2 class="page-title mb-0">
+                    <i class="fas fa-heart text-danger me-2"></i>Meus Favoritos
+                </h2>
+                <p class="text-muted">Materiais que você salvou para consultar depois</p>
+            </div>
+
+            {% if favoritos %}
+                <div class="row">
+                    {% for favorito in favoritos %}
+                        <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                            <div class="card material-card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <span class="badge bg-primary">{{ favorito.material.get_tipo_display }}</span>
+                                        <small class="text-muted">{{ favorito.material.serie }}º período</small>
+                                    </div>
+                                    
+                                    <h5 class="card-title">{{ favorito.material.titulo }}</h5>
+                                    <p class="card-text text-muted small">{{ favorito.material.descricao|truncatewords:15 }}</p>
+                                    
+                                    <div class="material-meta mb-3">
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-user me-1"></i>{{ favorito.material.autor.get_full_name }}
+                                        </small>
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-book me-1"></i>{{ favorito.material.materia }}
+                                        </small>
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-calendar me-1"></i>Favoritado em {{ favorito.data_favoritado|date:"d/m/Y" }}
+                                        </small>
+                                    </div>
+
+                                    {% if favorito.material.tags %}
+                                        <div class="tags mb-2">
+                                            {% for tag in favorito.material.get_tags_list %}
+                                                <span class="badge bg-light text-dark me-1">#{{ tag }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+
+                                    <div class="rating mb-2">
+                                        {% for i in "12345"|make_list %}
+                                            {% if forloop.counter <= favorito.material.rating_medio %}
+                                                <i class="fas fa-star text-warning"></i>
+                                            {% else %}
+                                                <i class="far fa-star text-muted"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <small class="text-muted ms-2">({{ favorito.material.total_avaliacoes }})</small>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            <i class="fas fa-eye me-1"></i>{{ favorito.material.visualizacoes }}
+                                            <i class="fas fa-download ms-2 me-1"></i>{{ favorito.material.downloads }}
+                                        </small>
+                                        <div class="btn-group">
+                                            <a href="{% url 'detalhe_material' favorito.material.id %}" class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-eye me-1"></i>Ver
+                                            </a>
+                                            <a href="{% url 'favoritar_material' favorito.material.id %}" class="btn btn-outline-danger btn-sm">
+                                                <i class="fas fa-heart-broken me-1"></i>Remover
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Paginação -->
+                {% if page_obj.has_other_pages %}
+                    <nav aria-label="Navegação de páginas">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+                                </li>
+                            {% endif %}
+                            
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Próximo</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-heart fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">Nenhum material favoritado</h4>
+                    <p class="text-muted">Que tal explorar alguns materiais e salvar os seus favoritos?</p>
+                    <a href="{% url 'buscar_materiais' %}" class="btn btn-primary">
+                        <i class="fas fa-search me-2"></i>Buscar Materiais
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

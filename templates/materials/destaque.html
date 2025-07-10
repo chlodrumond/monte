@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ titulo }} - Monte{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header mb-4">
+                <h2 class="page-title mb-0">
+                    <i class="fas fa-star text-warning me-2"></i>{{ titulo }}
+                </h2>
+                <p class="text-muted">Materiais selecionados especialmente pela nossa curadoria</p>
+            </div>
+
+            {% if materiais %}
+                <div class="row">
+                    {% for material in materiais %}
+                        <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                            <div class="card material-card h-100 border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="fw-bold">
+                                            <i class="fas fa-star me-2"></i>Material em Destaque
+                                        </span>
+                                        <span class="badge bg-dark">{{ material.get_tipo_display }}</span>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <small class="text-muted">{{ material.serie }}º período</small>
+                                        <small class="text-muted">{{ material.data_upload|date:"d/m/Y" }}</small>
+                                    </div>
+                                    
+                                    <h5 class="card-title">{{ material.titulo }}</h5>
+                                    <p class="card-text text-muted">{{ material.descricao|truncatewords:20 }}</p>
+                                    
+                                    <div class="material-meta mb-3">
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-user me-1"></i>{{ material.autor.get_full_name }}
+                                        </small>
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-book me-1"></i>{{ material.materia }}
+                                        </small>
+                                    </div>
+
+                                    {% if material.tags %}
+                                        <div class="tags mb-3">
+                                            {% for tag in material.get_tags_list %}
+                                                <span class="badge bg-light text-dark me-1">#{{ tag }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+
+                                    <div class="rating mb-3">
+                                        {% for i in "12345"|make_list %}
+                                            {% if forloop.counter <= material.rating_medio %}
+                                                <i class="fas fa-star text-warning"></i>
+                                            {% else %}
+                                                <i class="far fa-star text-muted"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <small class="text-muted ms-2">({{ material.total_avaliacoes }} avaliações)</small>
+                                    </div>
+
+                                    <div class="material-stats mb-3">
+                                        <div class="row text-center">
+                                            <div class="col-4">
+                                                <div class="stat-item">
+                                                    <i class="fas fa-eye text-primary"></i>
+                                                    <div class="fw-bold">{{ material.visualizacoes }}</div>
+                                                    <small class="text-muted">Visualizações</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="stat-item">
+                                                    <i class="fas fa-download text-success"></i>
+                                                    <div class="fw-bold">{{ material.downloads }}</div>
+                                                    <small class="text-muted">Downloads</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="stat-item">
+                                                    <i class="fas fa-thumbs-up text-info"></i>
+                                                    <div class="fw-bold">{{ material.aprovacoes }}</div>
+                                                    <small class="text-muted">Aprovações</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-grid">
+                                        <a href="{% url 'detalhe_material' material.id %}" class="btn btn-warning">
+                                            <i class="fas fa-eye me-2"></i>Ver Material em Destaque
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Paginação -->
+                {% if page_obj.has_other_pages %}
+                    <nav aria-label="Navegação de páginas">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+                                </li>
+                            {% endif %}
+                            
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Próximo</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-star fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">Ainda não há materiais em destaque</h4>
+                    <p class="text-muted">Nossa curadoria está trabalhando para selecionar os melhores materiais</p>
+                    <a href="{% url 'buscar_materiais' %}" class="btn btn-primary">
+                        <i class="fas fa-search me-2"></i>Explorar Materiais
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.material-card.border-warning {
+    box-shadow: 0 4px 8px rgba(255, 193, 7, 0.2);
+}
+
+.stat-item {
+    padding: 0.5rem;
+}
+
+.stat-item i {
+    font-size: 1.2rem;
+    margin-bottom: 0.25rem;
+}
+</style>
+{% endblock %}

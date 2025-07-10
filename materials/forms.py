@@ -22,7 +22,7 @@ class CustomUserCreationForm(UserCreationForm):
     )
     email = forms.EmailField(
         required=True,
-        widget=forms.EmailInput(attrs={'placeholder': 'Email @puc-rio.br'})
+        widget=forms.EmailInput(attrs={'placeholder': 'Email @aluno.puc-rio.br'})
     )
     curso = forms.CharField(
         max_length=100,
@@ -59,8 +59,8 @@ class CustomUserCreationForm(UserCreationForm):
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        if email and not email.endswith('@puc-rio.br'):
-            raise ValidationError('Email deve ser do domínio @puc-rio.br')
+        if email and not email.endswith('@aluno.puc-rio.br'):
+            raise ValidationError('Email deve ser do domínio @aluno.puc-rio.br')
         
         if User.objects.filter(email=email).exists():
             raise ValidationError('Este email já está em uso.')
@@ -108,8 +108,8 @@ class CustomLoginForm(forms.Form):
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        if email and not email.endswith('@puc-rio.br'):
-            raise ValidationError('Email deve ser do domínio @puc-rio.br')
+        if email and not email.endswith('@aluno.puc-rio.br'):
+            raise ValidationError('Email deve ser do domínio @aluno.puc-rio.br')
         return email
 
 
@@ -118,7 +118,7 @@ class MaterialForm(forms.ModelForm):
     
     class Meta:
         model = Material
-        fields = ['titulo', 'descricao', 'tipo', 'materia', 'serie', 'arquivo']
+        fields = ['titulo', 'descricao', 'tipo', 'materia', 'serie', 'arquivo', 'tags']
         widgets = {
             'titulo': forms.TextInput(attrs={'placeholder': 'Título do material'}),
             'descricao': forms.Textarea(attrs={
@@ -126,6 +126,10 @@ class MaterialForm(forms.ModelForm):
                 'rows': 4
             }),
             'materia': forms.TextInput(attrs={'placeholder': 'Nome da matéria'}),
+            'tags': forms.TextInput(attrs={
+                'placeholder': 'Tags separadas por vírgula (ex: cálculo, derivada, exercícios)',
+                'help_text': 'Use tags para facilitar a busca do seu material'
+            }),
         }
 
     def __init__(self, *args, **kwargs):

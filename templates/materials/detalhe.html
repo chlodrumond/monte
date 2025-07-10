@@ -17,15 +17,57 @@
                         <span class="badge bg-primary">{{ material.get_tipo_display }}</span>
                         <span class="badge bg-secondary">{{ material.serie }}º período</span>
                         <span class="badge bg-info">{{ material.materia }}</span>
+                        {% if material.destaque %}
+                            <span class="badge bg-warning text-dark">
+                                <i class="fas fa-star me-1"></i>Destaque
+                            </span>
+                        {% endif %}
                     </div>
+                    
+                    {% if material.tags %}
+                        <div class="material-tags mb-3">
+                            <small class="text-muted d-block mb-1">Tags:</small>
+                            {% for tag in material.get_tags_list %}
+                                <span class="badge bg-light text-dark me-1">#{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                     <p class="material-description">{{ material.descricao }}</p>
                 </div>
                 <div class="col-md-4 text-end">
                     <div class="material-actions mb-3">
                         {% if user.is_authenticated %}
-                            <a href="{% url 'download_material' material.id %}" class="btn btn-primary btn-lg">
-                                <i class="fas fa-download"></i> Download
-                            </a>
+                            <div class="d-flex gap-2 justify-content-end mb-2">
+                                <a href="{% url 'download_material' material.id %}" class="btn btn-primary">
+                                    <i class="fas fa-download"></i> Download
+                                </a>
+                                <a href="{% url 'favoritar_material' material.id %}" class="btn btn-outline-danger">
+                                    {% if eh_favorito %}
+                                        <i class="fas fa-heart"></i> Favoritado
+                                    {% else %}
+                                        <i class="far fa-heart"></i> Favoritar
+                                    {% endif %}
+                                </a>
+                            </div>
+                            
+                            <!-- Social Sharing -->
+                            <div class="social-sharing mb-2">
+                                <small class="text-muted d-block mb-1">Compartilhar:</small>
+                                <div class="btn-group">
+                                    <a href="{% url 'compartilhar_material' material.id 'whatsapp' %}" class="btn btn-outline-success btn-sm" title="WhatsApp">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </a>
+                                    <a href="{% url 'compartilhar_material' material.id 'twitter' %}" class="btn btn-outline-info btn-sm" title="Twitter">
+                                        <i class="fab fa-twitter"></i>
+                                    </a>
+                                    <a href="{% url 'compartilhar_material' material.id 'facebook' %}" class="btn btn-outline-primary btn-sm" title="Facebook">
+                                        <i class="fab fa-facebook"></i>
+                                    </a>
+                                    <a href="{% url 'compartilhar_material' material.id 'email' %}" class="btn btn-outline-secondary btn-sm" title="Email">
+                                        <i class="fas fa-envelope"></i>
+                                    </a>
+                                </div>
+                            </div>
                         {% else %}
                             <a href="{% url 'login' %}" class="btn btn-primary btn-lg">
                                 <i class="fas fa-sign-in-alt"></i> Login para Download
@@ -40,6 +82,10 @@
                         <div class="stat-item">
                             <span class="stat-label">Downloads:</span>
                             <span class="stat-value">{{ material.downloads }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Visualizações:</span>
+                            <span class="stat-value">{{ material.visualizacoes }}</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Avaliação:</span>

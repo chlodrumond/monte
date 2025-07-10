@@ -111,20 +111,30 @@ Preferred communication style: Simple, everyday language.
 ## Recent Changes (July 2025)
 
 1. **Complete Django Migration**: Migrated from Flask prototype to full Django application
-2. **User Authentication**: Implemented custom signup/login with @puc-rio.br email validation
+2. **User Authentication**: Implemented custom signup/login with @aluno.puc-rio.br email validation (corrected)
 3. **Gamification System**: Built mountain progression with 8 levels (Pedra Bonita to Everest)
 4. **Material Management**: Upload, search, comment, and rating system for academic materials
 5. **User Interface**: Complete responsive UI with user profiles, rankings, and notifications
 6. **Logo Update**: Integrated new logo provided by user (July 10, 2025)
 7. **Admin Panel**: Configured Django admin with sample data for testing
+8. **Social Features**: Added favorites system, social sharing (WhatsApp, Twitter, Facebook, Email)
+9. **Content Curation**: Implemented featured materials, popularity algorithm, view tracking
+10. **Enhanced Search**: Added tags system for better material discovery
+11. **Database Enhancement**: Added new fields (visualizations, featured status, tags) and models
 
 ## Current Features
 
-- **User Authentication**: Signup/login with PUC-Rio email validation
+- **User Authentication**: Signup/login with @aluno.puc-rio.br email validation
 - **Material Upload**: Share academic materials with altitude rewards (50m per upload)
-- **Search & Filter**: Advanced search by type, subject, period, and keywords
+- **Search & Filter**: Advanced search by type, subject, period, keywords, and tags
 - **Comments & Ratings**: Interactive feedback system with altitude rewards
 - **Mountain Progression**: 8-level gamification system with achievement tracking
 - **User Profiles**: Personal dashboard showing progress and mountain conquests
 - **Ranking System**: Community leaderboard based on altitude achievements
+- **Favorites System**: Users can save materials for later access
+- **Social Sharing**: Share materials via WhatsApp, Twitter, Facebook, or Email
+- **Content Curation**: Featured materials and popularity-based rankings
+- **View Tracking**: Automatic tracking of material views and engagement
+- **Tags System**: Enhanced material categorization and discovery
+- **Enhanced Admin**: Full administrative control with content moderation
 - **Responsive Design**: Mobile-first design with navy blue/gold branding
