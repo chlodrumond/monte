@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Enviar Material - Monte{% endblock %}
+{% block body_class %}upload-body{% endblock %}
+
+{% block content %}
+<div class="upload-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="upload-header text-center mb-4">
+                    <h1 class="upload-title">Compartilhe Seu Conhecimento</h1>
+                    <p class="upload-subtitle">Cada material compartilhado te aproxima do próximo cume</p>
+                </div>
+
+                <div class="card upload-form-card">
+                    <div class="card-body">
+                        <form method="POST" enctype="multipart/form-data" class="upload-form">
+                            {% csrf_token %}
+                            {{ form|crispy }}
+                        </form>
+                    </div>
+                </div>
+
+                <div class="altitude-info mt-4">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <div class="reward-card">
+                                <i class="fas fa-upload fa-2x text-primary mb-2"></i>
+                                <h5>Upload de Material</h5>
+                                <p class="reward-points">+50m de altitude</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="reward-card">
+                                <i class="fas fa-comment fa-2x text-info mb-2"></i>
+                                <h5>Comentário</h5>
+                                <p class="reward-points">+10m de altitude</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="reward-card">
+                                <i class="fas fa-star fa-2x text-warning mb-2"></i>
+                                <h5>Avaliação Recebida</h5>
+                                <p class="reward-points">+5m de altitude</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.upload-body {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.upload-title {
+    color: var(--navy-blue);
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.upload-subtitle {
+    color: #6c757d;
+    font-size: 1.1rem;
+}
+
+.upload-form-card {
+    border: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    border-radius: 15px;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+.reward-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
+}
+
+.reward-points {
+    color: var(--gold);
+    font-weight: bold;
+    margin: 0;
+}
+
+.form-group label {
+    color: var(--navy-blue);
+    font-weight: 600;
+}
+
+.btn-acessar {
+    background: linear-gradient(135deg, var(--navy-blue), #1a2b3d);
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-acessar:hover {
+    background: linear-gradient(135deg, var(--gold), #d4c485);
+    color: var(--navy-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+</style>
+{% endblock %}

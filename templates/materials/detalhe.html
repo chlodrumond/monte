@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ material.titulo }} - Monte{% endblock %}
+{% block body_class %}material-detail-body{% endblock %}
+
+{% block content %}
+<div class="material-detail-container">
+    <div class="container">
+        <!-- Material Header -->
+        <div class="material-header mb-4">
+            <div class="row">
+                <div class="col-md-8">
+                    <h1 class="material-title">{{ material.titulo }}</h1>
+                    <div class="material-meta mb-3">
+                        <span class="badge bg-primary">{{ material.get_tipo_display }}</span>
+                        <span class="badge bg-secondary">{{ material.serie }}º período</span>
+                        <span class="badge bg-info">{{ material.materia }}</span>
+                    </div>
+                    <p class="material-description">{{ material.descricao }}</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="material-actions mb-3">
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'download_material' material.id %}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-download"></i> Download
+                            </a>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt"></i> Login para Download
+                            </a>
+                        {% endif %}
+                    </div>
+                    <div class="material-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Autor:</span>
+                            <span class="stat-value">{{ material.autor.get_full_name }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Downloads:</span>
+                            <span class="stat-value">{{ material.downloads }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Avaliação:</span>
+                            <span class="stat-value">
+                                {{ material.rating_medio|floatformat:1 }}/5 ({{ material.total_avaliacoes }} avaliações)
+                            </span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Publicado:</span>
+                            <span class="stat-value">{{ material.data_upload|date:"d/m/Y" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Comentários -->
+            <div class="col-md-8">
+                <div class="card comments-section">
+                    <div class="card-header">
+                        <h5><i class="fas fa-comments"></i> Comentários</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if user.is_authenticated %}
+                            <form method="POST" class="comment-form mb-4">
+                                {% csrf_token %}
+                                <input type="hidden" name="comentario_submit" value="1">
+                                {{ comentario_form|crispy }}
+                            </form>
+                        {% else %}
+                            <div class="login-prompt text-center mb-4">
+                                <p>Faça <a href="{% url 'login' %}">login</a> para comentar</p>
+                            </div>
+                        {% endif %}
+
+                        <div class="comments-list">
+                            {% for comentario in comentarios %}
+                                <div class="comment-item">
+                                    <div class="comment-header">
+                                        <strong>{{ comentario.autor.get_full_name }}</strong>
+                                        <small class="text-muted">{{ comentario.data_criacao|timesince }} atrás</small>
+                                    </div>
+                                    <div class="comment-text">
+                                        {{ comentario.texto|linebreaks }}
+                                    </div>
+                                </div>
+                            {% empty %}
+                                <p class="text-muted text-center">Seja o primeiro a comentar!</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Avaliação -->
+            <div class="col-md-4">
+                <div class="card rating-section">
+                    <div class="card-header">
+                        <h5><i class="fas fa-star"></i> Avaliação</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if user.is_authenticated %}
+                            {% if avaliacao_usuario %}
+                                <p>Sua avaliação: <strong>{{ avaliacao_usuario.nota }} estrelas</strong></p>
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="avaliacao_submit" value="1">
+                                    {{ avaliacao_form|crispy }}
+                                </form>
+                            {% else %}
+                                <p>Avalie este material:</p>
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="avaliacao_submit" value="1">
+                                    {{ avaliacao_form|crispy }}
+                                </form>
+                            {% endif %}
+                        {% else %}
+                            <p class="text-muted">Faça <a href="{% url 'login' %}">login</a> para avaliar</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Compartilhamento -->
+                <div class="card sharing-section mt-3">
+                    <div class="card-header">
+                        <h5><i class="fas fa-share"></i> Compartilhar</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="sharing-buttons">
+                            <a href="https://wa.me/?text=Confira este material: {{ material.titulo }} - {{ request.build_absolute_uri }}" 
+                               target="_blank" class="btn btn-success btn-sm">
+                                <i class="fab fa-whatsapp"></i> WhatsApp
+                            </a>
+                            <a href="https://twitter.com/intent/tweet?text=Confira este material: {{ material.titulo }}&url={{ request.build_absolute_uri }}" 
+                               target="_blank" class="btn btn-info btn-sm">
+                                <i class="fab fa-twitter"></i> Twitter
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.material-detail-body {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.material-title {
+    color: var(--navy-blue);
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.material-meta .badge {
+    margin-right: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.material-description {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #666;
+}
+
+.material-stats {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.stat-label {
+    font-weight: 600;
+    color: #666;
+}
+
+.stat-value {
+    color: var(--navy-blue);
+}
+
+.card {
+    border: none;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    background: white;
+    border-bottom: 2px solid var(--gold);
+    font-weight: 600;
+}
+
+.comment-item {
+    padding: 1rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.comment-item:last-child {
+    border-bottom: none;
+}
+
+.comment-header {
+    margin-bottom: 0.5rem;
+}
+
+.comment-text {
+    color: #666;
+}
+
+.sharing-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.sharing-buttons .btn {
+    flex: 1;
+    min-width: 120px;
+}
+
+.login-prompt {
+    padding: 2rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+</style>
+{% endblock %}

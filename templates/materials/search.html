@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Buscar Materiais - Monte{% endblock %}
+{% block body_class %}search-body{% endblock %}
+
+{% block content %}
+<div class="search-container">
+    <div class="container">
+        <!-- Filtros de busca -->
+        <div class="card search-filters mb-4">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-filter"></i> Filtros de Busca</h5>
+                <form method="GET" class="search-form">
+                    {{ form|crispy }}
+                </form>
+            </div>
+        </div>
+
+        <!-- Resultados -->
+        <div class="search-results">
+            {% if materiais %}
+                <div class="results-header mb-3">
+                    <h4>{{ page_obj.paginator.count }} material{{ page_obj.paginator.count|pluralize:"is" }} encontrado{{ page_obj.paginator.count|pluralize:"s" }}</h4>
+                </div>
+
+                <div class="row">
+                    {% for material in materiais %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card material-card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        <a href="{% url 'detalhe_material' material.id %}">{{ material.titulo }}</a>
+                                    </h5>
+                                    <p class="card-text">{{ material.descricao|truncatewords:15 }}</p>
+                                    
+                                    <div class="material-meta mb-3">
+                                        <span class="badge bg-primary">{{ material.get_tipo_display }}</span>
+                                        <span class="badge bg-secondary">{{ material.serie }}º período</span>
+                                        <span class="badge bg-info">{{ material.materia }}</span>
+                                    </div>
+                                    
+                                    <div class="material-stats mb-3">
+                                        <div class="stat">
+                                            <i class="fas fa-user"></i>
+                                            <span>{{ material.autor.get_full_name }}</span>
+                                        </div>
+                                        <div class="stat">
+                                            <i class="fas fa-download"></i>
+                                            <span>{{ material.downloads }}</span>
+                                        </div>
+                                        <div class="stat">
+                                            <i class="fas fa-star"></i>
+                                            <span>{{ material.media_avaliacoes|floatformat:1|default:"0.0" }} ({{ material.total_avaliacoes }})</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="material-actions">
+                                        <a href="{% url 'detalhe_material' material.id %}" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-eye"></i> Ver Detalhes
+                                        </a>
+                                        {% if user.is_authenticated %}
+                                            <a href="{% url 'download_material' material.id %}" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-download"></i> Download
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="card-footer text-muted">
+                                    <small>{{ material.data_upload|timesince }} atrás</small>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Paginação -->
+                {% if page_obj.has_other_pages %}
+                    <nav aria-label="Navegação de páginas">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">Anterior</a>
+                                </li>
+                            {% endif %}
+                            
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">Próxima</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="empty-results text-center">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h4>Nenhum material encontrado</h4>
+                    <p class="text-muted">Tente ajustar os filtros ou procure por outros termos.</p>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'upload_material' %}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Seja o primeiro a compartilhar
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.search-body {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.search-filters {
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.material-card {
+    border: none;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.material-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 25px rgba(0,0,0,0.15);
+}
+
+.card-title a {
+    color: var(--navy-blue);
+    text-decoration: none;
+}
+
+.card-title a:hover {
+    color: var(--gold);
+}
+
+.material-meta .badge {
+    margin-right: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.material-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.material-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.material-actions .btn {
+    flex: 1;
+    min-width: 120px;
+}
+
+.empty-results {
+    padding: 4rem 1rem;
+}
+
+.pagination .page-link {
+    color: var(--navy-blue);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--navy-blue);
+    border-color: var(--navy-blue);
+}
+
+.pagination .page-link:hover {
+    background-color: var(--gold);
+    border-color: var(--gold);
+    color: var(--navy-blue);
+}
+</style>
+{% endblock %}
