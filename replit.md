@@ -2,7 +2,7 @@
 
 ## Overview
 
-Monte Academic Platform is a Flask-based web application designed as an academic platform with a mountaineering metaphor. The application features a minimalist design with a navy blue and gold color scheme, providing users with a homepage and login functionality. The platform is built using Flask as the backend framework with Bootstrap and custom CSS for the frontend.
+Monte Academic Platform is a complete Django-based educational platform with a mountain-themed gamification system. Students can upload and share academic materials, earn altitude points, and progress through mountain levels from Pedra Bonita to Everest. The platform features PUC-Rio email validation, user authentication, material sharing, commenting, rating systems, and user rankings. The application uses a navy blue and gold color scheme with responsive design.
 
 ## User Preferences
 
@@ -11,17 +11,19 @@ Preferred communication style: Simple, everyday language.
 ## System Architecture
 
 ### Backend Architecture
-- **Framework**: Flask (Python web framework)
-- **Application Structure**: Simple monolithic structure with a single `app.py` file containing all routes
-- **Session Management**: Uses Flask's built-in session handling with a configurable secret key
-- **Proxy Support**: Configured with ProxyFix middleware for deployment behind reverse proxies
+- **Framework**: Django 5.2 (Python web framework)
+- **Application Structure**: Full Django project with `monte_platform` main project and `materials` app
+- **Database**: SQLite with Django ORM models for users, materials, comments, ratings, and gamification
+- **Authentication**: Custom user authentication with @puc-rio.br email validation
+- **Gamification**: Mountain-based progression system with altitude points and achievements
 
 ### Frontend Architecture
-- **Template Engine**: Jinja2 (Flask's default templating engine)
+- **Template Engine**: Django templates with template inheritance
 - **CSS Framework**: Bootstrap 5.3.0 for responsive design and components
+- **Forms**: Django Crispy Forms with Bootstrap 5 styling
 - **Icon Library**: Font Awesome 6.4.0 for icons
 - **Typography**: Google Fonts (Crimson Text) for serif typography
-- **JavaScript**: Vanilla JavaScript for interactive components (hamburger menu)
+- **JavaScript**: Vanilla JavaScript for interactive components (hamburger menu, dynamic forms)
 
 ### Design System
 - **Color Palette**: Navy blue (#0B1C2D) and gold (#CEB974) for brand consistency
@@ -106,10 +108,23 @@ Preferred communication style: Simple, everyday language.
 - Form validation foundation in place
 - Accessibility features implemented (ARIA labels, keyboard navigation)
 
-## Future Development Areas
+## Recent Changes (July 2025)
 
-1. **Database Integration**: Ready for database implementation (likely PostgreSQL with potential Drizzle ORM integration)
-2. **Authentication System**: Foundation exists for implementing proper user authentication
-3. **User Management**: Session handling infrastructure ready for user state management
-4. **API Development**: Flask structure supports REST API development
-5. **Content Management**: Academic platform features can be built on existing foundation
+1. **Complete Django Migration**: Migrated from Flask prototype to full Django application
+2. **User Authentication**: Implemented custom signup/login with @puc-rio.br email validation
+3. **Gamification System**: Built mountain progression with 8 levels (Pedra Bonita to Everest)
+4. **Material Management**: Upload, search, comment, and rating system for academic materials
+5. **User Interface**: Complete responsive UI with user profiles, rankings, and notifications
+6. **Logo Update**: Integrated new logo provided by user (July 10, 2025)
+7. **Admin Panel**: Configured Django admin with sample data for testing
+
+## Current Features
+
+- **User Authentication**: Signup/login with PUC-Rio email validation
+- **Material Upload**: Share academic materials with altitude rewards (50m per upload)
+- **Search & Filter**: Advanced search by type, subject, period, and keywords
+- **Comments & Ratings**: Interactive feedback system with altitude rewards
+- **Mountain Progression**: 8-level gamification system with achievement tracking
+- **User Profiles**: Personal dashboard showing progress and mountain conquests
+- **Ranking System**: Community leaderboard based on altitude achievements
+- **Responsive Design**: Mobile-first design with navy blue/gold branding
