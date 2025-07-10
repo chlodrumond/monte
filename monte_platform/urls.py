@@ -26,6 +26,15 @@ urlpatterns = [
     path('login/', views.custom_login, name='login'),
     path('signup/', views.signup, name='signup'),
     path('logout/', views.logout_view, name='logout'),
+    path('ativar/<uidb64>/<token>/', views.activate_account, name='activate_account'),
+    
+    # Admin URLs
+    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('admin-users/', views.admin_users, name='admin_users'),
+    path('admin-users/delete/<int:user_id>/', views.admin_delete_user, name='admin_delete_user'),
+    path('admin-materials/', views.admin_materials, name='admin_materials'),
+    path('admin-materials/delete/<int:material_id>/', views.admin_delete_material, name='admin_delete_material'),
+    
     path('', include('materials.urls')),
 ]
 

@@ -10,6 +10,14 @@ from django.core.paginator import Paginator
 from django.contrib.auth.models import User
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_protect
+from django.core.mail import send_mail
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.template.loader import render_to_string
+from django.contrib.sites.shortcuts import get_current_site
+from django.conf import settings
+from django.contrib.auth.decorators import user_passes_test
 
 from .models import (
     Material, Comentario, Avaliacao, UserProfile, 
@@ -66,9 +74,12 @@ def custom_login(request):
                     messages.error(request, 'Usuário ou senha incorretos.')
             
             if user is not None:
-                login(request, user)
-                messages.success(request, f'Bem-vindo de volta, {user.get_full_name()}!')
-                return redirect('perfil')
+                if user.is_active:
+                    login(request, user)
+                    messages.success(request, f'Bem-vindo de volta, {user.get_full_name()}!')
+                    return redirect('perfil')
+                else:
+                    messages.error(request, 'Conta não ativada. Verifique seu email para ativar a conta.')
             elif '@' not in username_or_email:
                 messages.error(request, 'Usuário ou senha incorretos.')
     
@@ -76,7 +87,7 @@ def custom_login(request):
 
 
 def signup(request):
-    """Cadastro de usuários com validação de email PUC-Rio"""
+    """Cadastro de usuários com validação de email PUC-Rio e confirmação por email"""
     if request.user.is_authenticated:
         return redirect('perfil')
     
@@ -85,12 +96,75 @@ def signup(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            # Criar usuário mas deixar inativo até confirmação
+            user = form.save(commit=False)
+            user.is_active = False
+            user.save()
+            
+            # Criar perfil manualmente já que o usuário está inativo
+            profile, created = UserProfile.objects.get_or_create(user=user)
+            profile.curso = form.cleaned_data['curso']
+            profile.save()
+            
+            # Enviar email de confirmação
+            send_confirmation_email(request, user)
+            
             username = form.cleaned_data.get('username')
-            messages.success(request, f'Conta criada para {username}! Faça login para continuar.')
+            messages.success(
+                request, 
+                f'Conta criada para {username}! Verifique seu email PUC-Rio para confirmar a conta.'
+            )
             return redirect('login')
     
     return render(request, 'registration/signup.html', {'form': form})
+
+
+def send_confirmation_email(request, user):
+    """Envia email de confirmação para o usuário"""
+    current_site = get_current_site(request)
+    mail_subject = 'Ative sua conta Monte Platform'
+    
+    # Gerar token de ativação
+    token = default_token_generator.make_token(user)
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    
+    # URL de ativação
+    activation_link = f"http://{current_site.domain}/ativar/{uid}/{token}/"
+    
+    message = f"""
+    Olá {user.get_full_name()},
+    
+    Bem-vindo à Monte Platform!
+    
+    Para ativar sua conta, clique no link abaixo:
+    {activation_link}
+    
+    Este link expira em 24 horas.
+    
+    Se você não criou esta conta, ignore este email.
+    
+    Equipe Monte Platform
+    """
+    
+    send_mail(mail_subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
+
+
+def activate_account(request, uidb64, token):
+    """Ativa a conta do usuário através do link no email"""
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        messages.success(request, 'Conta ativada com sucesso! Você já pode fazer login.')
+        return redirect('login')
+    else:
+        messages.error(request, 'Link de ativação inválido ou expirado.')
+        return redirect('signup')
 
 
 @login_required
@@ -161,8 +235,9 @@ def upload_material(request):
     return render(request, 'materials/upload.html', {'form': form})
 
 
+@login_required
 def buscar_materiais(request):
-    """Busca e listagem de materiais com filtros"""
+    """Busca e listagem de materiais com filtros - LOGIN REQUERIDO"""
     form = BuscaForm(request.GET)
     materiais = Material.objects.select_related('autor').annotate(
         media_avaliacoes=Avg('avaliacao__nota'),
@@ -186,7 +261,7 @@ def buscar_materiais(request):
             materiais = materiais.filter(tipo=tipo)
         
         if serie:
-            materiais = materiais.filter(serie=serie)
+            materiais = materiais.filter(grau=serie)
             
         if materia:
             materiais = materiais.filter(materia__icontains=materia)
@@ -394,8 +469,9 @@ def compartilhar_material(request, material_id, plataforma):
     return redirect('detalhe_material', material_id=material_id)
 
 
+@login_required
 def materiais_populares(request):
-    """Lista de materiais mais populares baseada em algoritmo de curadoria"""
+    """Lista de materiais mais populares baseada em algoritmo de curadoria - LOGIN REQUERIDO"""
     # Materiais ordenados por popularidade (visualizações, downloads, avaliações)
     materiais = Material.objects.annotate(
         media_avaliacoes=Coalesce(Avg('avaliacao__nota'), 0.0, output_field=models.FloatField()),
@@ -415,7 +491,7 @@ def materiais_populares(request):
     if tipo:
         materiais = materiais.filter(tipo=tipo)
     if serie:
-        materiais = materiais.filter(serie=serie)
+        materiais = materiais.filter(grau=serie)
     
     paginator = Paginator(materiais, 12)
     page_number = request.GET.get('page')
@@ -428,13 +504,14 @@ def materiais_populares(request):
         'tipo_atual': tipo,
         'serie_atual': serie,
         'tipos': Material.TIPO_CHOICES,
-        'series': Material.SERIE_CHOICES,
+        'series': Material.GRAU_CHOICES,
     }
     return render(request, 'materials/populares.html', context)
 
 
+@login_required
 def materiais_destaque(request):
-    """Materiais em destaque selecionados pela curadoria"""
+    """Materiais em destaque selecionados pela curadoria - LOGIN REQUERIDO"""
     materiais = Material.objects.filter(destaque=True).select_related('autor').order_by('-data_upload')
     
     paginator = Paginator(materiais, 12)
@@ -466,3 +543,138 @@ def notificacoes_usuario(request):
         'page_obj': page_obj,
     }
     return render(request, 'materials/notificacoes.html', context)
+
+
+# Helper function to check if user is admin
+def is_admin_user(user):
+    return user.is_authenticated and user.email == settings.ADMIN_EMAIL
+
+@user_passes_test(is_admin_user)
+def admin_dashboard(request):
+    """Dashboard administrativo - apenas para email específico"""
+    # Estatísticas gerais
+    total_usuarios = User.objects.count()
+    usuarios_ativos = User.objects.filter(is_active=True).count()
+    usuarios_inativos = User.objects.filter(is_active=False).count()
+    total_materiais = Material.objects.count()
+    
+    # Usuários recentes
+    usuarios_recentes = User.objects.select_related('profile').order_by('-date_joined')[:10]
+    
+    # Materiais recentes
+    materiais_recentes = Material.objects.select_related('autor').order_by('-data_upload')[:10]
+    
+    context = {
+        'total_usuarios': total_usuarios,
+        'usuarios_ativos': usuarios_ativos,
+        'usuarios_inativos': usuarios_inativos,
+        'total_materiais': total_materiais,
+        'usuarios_recentes': usuarios_recentes,
+        'materiais_recentes': materiais_recentes,
+    }
+    return render(request, 'materials/admin_dashboard.html', context)
+
+
+@user_passes_test(is_admin_user)
+def admin_users(request):
+    """Lista de usuários para administração"""
+    usuarios = User.objects.select_related('profile').order_by('-date_joined')
+    
+    # Filtros
+    filtro = request.GET.get('filtro')
+    if filtro == 'ativos':
+        usuarios = usuarios.filter(is_active=True)
+    elif filtro == 'inativos':
+        usuarios = usuarios.filter(is_active=False)
+    
+    # Busca
+    busca = request.GET.get('busca')
+    if busca:
+        usuarios = usuarios.filter(
+            Q(username__icontains=busca) |
+            Q(email__icontains=busca) |
+            Q(first_name__icontains=busca) |
+            Q(last_name__icontains=busca)
+        )
+    
+    paginator = Paginator(usuarios, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'usuarios': page_obj,
+        'page_obj': page_obj,
+        'filtro': filtro,
+        'busca': busca,
+    }
+    return render(request, 'materials/admin_users.html', context)
+
+
+@user_passes_test(is_admin_user)
+def admin_delete_user(request, user_id):
+    """Deletar usuário - apenas para admin"""
+    if request.method == 'POST':
+        user_to_delete = get_object_or_404(User, id=user_id)
+        
+        # Não permitir deletar próprio usuário
+        if user_to_delete == request.user:
+            messages.error(request, 'Você não pode deletar sua própria conta.')
+        else:
+            username = user_to_delete.username
+            user_to_delete.delete()
+            messages.success(request, f'Usuário {username} foi removido com sucesso.')
+    
+    return redirect('admin_users')
+
+
+@user_passes_test(is_admin_user)
+def admin_materials(request):
+    """Lista de materiais para administração"""
+    materiais = Material.objects.select_related('autor').order_by('-data_upload')
+    
+    # Filtros
+    tipo = request.GET.get('tipo')
+    if tipo:
+        materiais = materiais.filter(tipo=tipo)
+    
+    # Busca
+    busca = request.GET.get('busca')
+    if busca:
+        materiais = materiais.filter(
+            Q(titulo__icontains=busca) |
+            Q(descricao__icontains=busca) |
+            Q(autor__username__icontains=busca)
+        )
+    
+    paginator = Paginator(materiais, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'materiais': page_obj,
+        'page_obj': page_obj,
+        'tipo': tipo,
+        'busca': busca,
+        'tipos': Material.TIPO_CHOICES,
+    }
+    return render(request, 'materials/admin_materials.html', context)
+
+
+@user_passes_test(is_admin_user)
+def admin_delete_material(request, material_id):
+    """Deletar material - apenas para admin"""
+    if request.method == 'POST':
+        material = get_object_or_404(Material, id=material_id)
+        titulo = material.titulo
+        
+        # Deletar arquivo físico se existir
+        if material.arquivo:
+            try:
+                material.arquivo.delete()
+            except:
+                pass
+        
+        material.delete()
+        messages.success(request, f'Material "{titulo}" foi removido com sucesso.')
+    
+    return redirect('admin_materials')
