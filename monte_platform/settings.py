@@ -140,4 +140,4 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For developm
 DEFAULT_FROM_EMAIL = 'Monte Platform <noreply@monte-platform.com>'
 
 # Admin Management - Special admin powers for specific email
-ADMIN_EMAIL = 'your-email@aluno.puc-rio.br'  # Replace with your actual email
+ADMIN_EMAIL = 'chlodrumond@aluno.puc-rio.br'

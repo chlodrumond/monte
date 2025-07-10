@@ -59,7 +59,11 @@ class CustomUserCreationForm(UserCreationForm):
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        if email and not email.endswith('@aluno.puc-rio.br'):
+        
+        # Allow specific authorized email temporarily
+        authorized_emails = ['chlodrumond@aluno.puc-rio.br']
+        
+        if email and not (email.endswith('@aluno.puc-rio.br') or email in authorized_emails):
             raise ValidationError('Email deve ser do domínio @aluno.puc-rio.br')
         
         if User.objects.filter(email=email).exists():
