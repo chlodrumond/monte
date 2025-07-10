@@ -130,6 +130,7 @@ Preferred communication style: Simple, everyday language.
 18. **Profile Enhancement**: Added profile settings button in bottom right corner (July 10, 2025)
 19. **Two-Tier Navigation**: Restructured navigation with introductory homepage for anonymous users and internal homepage for logged-in users (July 10, 2025)
 20. **Sea Level Starting Point**: Updated mountain progression to start at "Sea Level" (0-49m) for users who haven't contributed yet (July 10, 2025)
+21. **Emoji Cleanup**: Removed remaining emojis from favorites and popular materials pages for cleaner interface (July 10, 2025)
 
 ## Current Features
 
