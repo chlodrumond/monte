@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q, Count, Avg, F
-from django.db.models.functions import Coalesce
+from django.db.models.functions import Coalesce, Cast
 from django.db import models
 from django.http import HttpResponse, Http404
 from django.core.paginator import Paginator
@@ -398,13 +398,13 @@ def materiais_populares(request):
     """Lista de materiais mais populares baseada em algoritmo de curadoria"""
     # Materiais ordenados por popularidade (visualizações, downloads, avaliações)
     materiais = Material.objects.annotate(
-        media_avaliacoes=Avg('avaliacao__nota'),
+        media_avaliacoes=Coalesce(Avg('avaliacao__nota'), 0.0, output_field=models.FloatField()),
         total_avaliacoes=Count('avaliacao'),
         popularidade_score=(
-            F('visualizacoes') * 0.1 + 
-            F('downloads') * 0.5 + 
-            Coalesce(F('media_avaliacoes'), 0) * 2 +
-            F('total_avaliacoes') * 0.3
+            Cast(F('visualizacoes'), models.FloatField()) * 0.1 + 
+            Cast(F('downloads'), models.FloatField()) * 0.5 + 
+            F('media_avaliacoes') * 2.0 +
+            Cast(F('total_avaliacoes'), models.FloatField()) * 0.3
         )
     ).order_by('-popularidade_score', '-data_upload')
     

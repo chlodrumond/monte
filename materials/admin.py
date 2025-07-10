@@ -1,7 +1,8 @@
 from django.contrib import admin
 from .models import (
     MountainLevel, UserProfile, Material, Comentario, 
-    Avaliacao, Notificacao, MountainAchievement, SocialShare, MaterialFavorito
+    Avaliacao, Notificacao, MountainAchievement, SocialShare, MaterialFavorito,
+    UserFollow, ChatRoom, ChatMessage
 )
 
 
@@ -65,3 +66,29 @@ class MaterialFavoritoAdmin(admin.ModelAdmin):
     list_display = ['usuario', 'material', 'data_favoritado']
     list_filter = ['data_favoritado']
     search_fields = ['usuario__username', 'material__titulo']
+
+
+@admin.register(UserFollow)
+class UserFollowAdmin(admin.ModelAdmin):
+    list_display = ['seguidor', 'seguido', 'data_seguimento']
+    list_filter = ['data_seguimento']
+    search_fields = ['seguidor__username', 'seguido__username']
+
+
+@admin.register(ChatRoom)
+class ChatRoomAdmin(admin.ModelAdmin):
+    list_display = ['nome', 'tipo', 'criador', 'data_criacao', 'ativa']
+    list_filter = ['tipo', 'ativa', 'data_criacao']
+    search_fields = ['nome', 'criador__username']
+    filter_horizontal = ['participantes']
+
+
+@admin.register(ChatMessage)
+class ChatMessageAdmin(admin.ModelAdmin):
+    list_display = ['sala', 'autor', 'conteudo_breve', 'data_envio', 'lida']
+    list_filter = ['lida', 'data_envio']
+    search_fields = ['conteudo', 'autor__username', 'sala__nome']
+    
+    def conteudo_breve(self, obj):
+        return obj.conteudo[:50] + "..." if len(obj.conteudo) > 50 else obj.conteudo
+    conteudo_breve.short_description = 'Conteúdo'
