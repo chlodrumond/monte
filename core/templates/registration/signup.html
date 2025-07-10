@@ -1,0 +1,164 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block body_class %}login-body{% endblock %}
+
+{% block content %}
+    <div class="login-container">
+        <!-- Left Side - Logo -->
+        <div class="login-left">
+            <div class="logo-section">
+                <a href="{% url 'index' %}" class="back-link">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <img src="{% static 'img/logo-monte.png' %}" alt="Monte Logo" class="login-logo">
+            </div>
+        </div>
+
+        <!-- Right Side - Form -->
+        <div class="login-right">
+            <div class="form-section">
+                <h1 class="login-title">Cadastre-se</h1>
+                
+                <form method="post" class="login-form" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <input 
+                            type="text" 
+                            name="username" 
+                            class="form-control" 
+                            placeholder="Nome de usuário"
+                            value="{{ form.username.value|default:'' }}"
+                            required
+                        >
+                        {% if form.username.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.username.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <input 
+                            type="text" 
+                            name="first_name" 
+                            class="form-control" 
+                            placeholder="Nome"
+                            value="{{ form.first_name.value|default:'' }}"
+                            required
+                        >
+                        {% if form.first_name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.first_name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <input 
+                            type="text" 
+                            name="last_name" 
+                            class="form-control" 
+                            placeholder="Sobrenome"
+                            value="{{ form.last_name.value|default:'' }}"
+                            required
+                        >
+                        {% if form.last_name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.last_name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <input 
+                            type="email" 
+                            name="email" 
+                            class="form-control" 
+                            placeholder="Email (@puc-rio.br)"
+                            value="{{ form.email.value|default:'' }}"
+                            required
+                        >
+                        {% if form.email.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.email.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <input 
+                            type="text" 
+                            name="curso" 
+                            class="form-control" 
+                            placeholder="Curso"
+                            value="{{ form.curso.value|default:'' }}"
+                            required
+                        >
+                        {% if form.curso.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.curso.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <input 
+                            type="password" 
+                            name="password1" 
+                            class="form-control" 
+                            placeholder="Senha"
+                            required
+                        >
+                        {% if form.password1.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.password1.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <input 
+                            type="password" 
+                            name="password2" 
+                            class="form-control" 
+                            placeholder="Confirme a senha"
+                            required
+                        >
+                        {% if form.password2.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.password2.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <button type="submit" class="btn-acessar">
+                        Cadastrar
+                    </button>
+                    
+                    <div class="text-center mt-3">
+                        <p class="text-muted">
+                            Já tem conta? <a href="{% url 'login' %}" class="text-decoration-none" style="color: #CEB974;">Faça login</a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

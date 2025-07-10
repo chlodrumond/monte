@@ -1,0 +1,401 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}Ranking - Monte{% endblock %}
+
+{% block body_class %}ranking-body{% endblock %}
+
+{% block content %}
+    <div class="ranking-container">
+        <div class="container">
+            <div class="ranking-header">
+                <h1 class="ranking-title">
+                    <i class="fas fa-trophy"></i>
+                    Ranking de Altitude
+                </h1>
+                <p class="ranking-subtitle">
+                    Os exploradores que mais contribuíram para a comunidade acadêmica
+                </p>
+            </div>
+            
+            <!-- Top 3 Podium -->
+            <div class="podium-section">
+                <div class="row justify-content-center">
+                    {% for user in top_users|slice:":3" %}
+                        <div class="col-md-4">
+                            <div class="podium-card position-{{ forloop.counter }}">
+                                <div class="podium-rank">
+                                    {% if forloop.counter == 1 %}
+                                        <i class="fas fa-crown"></i>
+                                    {% elif forloop.counter == 2 %}
+                                        <i class="fas fa-medal"></i>
+                                    {% else %}
+                                        <i class="fas fa-award"></i>
+                                    {% endif %}
+                                    <span class="rank-number">#{{ forloop.counter }}</span>
+                                </div>
+                                <div class="podium-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="podium-info">
+                                    <h5 class="podium-name">{{ user.user.first_name }} {{ user.user.last_name }}</h5>
+                                    <p class="podium-course">{{ user.curso }}</p>
+                                    <div class="podium-mountain">
+                                        <i class="fas fa-mountain"></i>
+                                        {{ user.current_mountain }}
+                                    </div>
+                                    <div class="podium-points">
+                                        {{ user.altitude_points }} pontos
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Full Ranking -->
+            <div class="ranking-table-section">
+                <div class="table-responsive">
+                    <table class="table ranking-table">
+                        <thead>
+                            <tr>
+                                <th>Posição</th>
+                                <th>Nome</th>
+                                <th>Curso</th>
+                                <th>Montanha</th>
+                                <th>Pontos</th>
+                                <th>Materiais</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in top_users %}
+                                <tr class="{% if user.user == request.user %}current-user{% endif %}">
+                                    <td>
+                                        <div class="rank-cell">
+                                            <span class="rank-number">#{{ forloop.counter }}</span>
+                                            {% if forloop.counter == 1 %}
+                                                <i class="fas fa-crown text-warning"></i>
+                                            {% elif forloop.counter == 2 %}
+                                                <i class="fas fa-medal text-secondary"></i>
+                                            {% elif forloop.counter == 3 %}
+                                                <i class="fas fa-award text-warning"></i>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="user-avatar">
+                                                <i class="fas fa-user"></i>
+                                            </div>
+                                            <div class="user-info">
+                                                <strong>{{ user.user.first_name }} {{ user.user.last_name }}</strong>
+                                                {% if user.user == request.user %}
+                                                    <small class="text-muted">(Você)</small>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ user.curso }}</td>
+                                    <td>
+                                        <div class="mountain-cell">
+                                            <i class="fas fa-mountain text-primary"></i>
+                                            {{ user.current_mountain }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <strong class="points-value">{{ user.altitude_points }}</strong>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ user.user.material_set.count }}</span>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">
+                                        Nenhum usuário encontrado
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Call to Action -->
+            {% if user.is_authenticated %}
+                <div class="cta-section">
+                    <div class="cta-card">
+                        <h5>Suba no ranking!</h5>
+                        <p>Compartilhe materiais e ganhe pontos de altitude para escalar as montanhas acadêmicas.</p>
+                        <a href="{% url 'upload_material' %}" class="btn btn-primary">
+                            <i class="fas fa-upload"></i> Enviar Material
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.ranking-body {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.ranking-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.ranking-title {
+    color: var(--navy-blue);
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.ranking-subtitle {
+    color: #666;
+    font-size: 1.1rem;
+    margin-bottom: 0;
+}
+
+.podium-section {
+    margin-bottom: 3rem;
+}
+
+.podium-card {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+    transition: transform 0.2s;
+}
+
+.podium-card:hover {
+    transform: translateY(-5px);
+}
+
+.podium-card.position-1 {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: white;
+    transform: scale(1.05);
+}
+
+.podium-card.position-2 {
+    background: linear-gradient(135deg, #C0C0C0, #A9A9A9);
+    color: white;
+}
+
+.podium-card.position-3 {
+    background: linear-gradient(135deg, #CD7F32, #8B4513);
+    color: white;
+}
+
+.podium-rank {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.podium-rank i {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.rank-number {
+    font-weight: 600;
+}
+
+.podium-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 2rem;
+}
+
+.podium-card.position-1 .podium-avatar,
+.podium-card.position-2 .podium-avatar,
+.podium-card.position-3 .podium-avatar {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.podium-name {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.podium-course {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin-bottom: 1rem;
+}
+
+.podium-mountain {
+    margin-bottom: 0.5rem;
+}
+
+.podium-mountain i {
+    margin-right: 0.5rem;
+}
+
+.podium-points {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.ranking-table-section {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.ranking-table {
+    margin: 0;
+}
+
+.ranking-table th {
+    background-color: var(--navy-blue);
+    color: white;
+    border: none;
+    font-weight: 600;
+    padding: 1rem;
+}
+
+.ranking-table td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-top: 1px solid #e9ecef;
+}
+
+.ranking-table tr.current-user {
+    background-color: rgba(206, 185, 116, 0.1);
+    font-weight: 600;
+}
+
+.rank-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.rank-cell .rank-number {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--navy-blue);
+}
+
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+}
+
+.mountain-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.points-value {
+    color: var(--navy-blue);
+    font-size: 1.1rem;
+}
+
+.cta-section {
+    text-align: center;
+}
+
+.cta-card {
+    background: linear-gradient(135deg, var(--navy-blue), #1a2f42);
+    color: white;
+    border-radius: 15px;
+    padding: 2rem;
+    display: inline-block;
+    max-width: 400px;
+}
+
+.cta-card h5 {
+    color: var(--gold);
+    margin-bottom: 1rem;
+}
+
+.cta-card p {
+    margin-bottom: 1.5rem;
+    opacity: 0.9;
+}
+
+.cta-card .btn {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--navy-blue);
+    font-weight: 600;
+}
+
+.cta-card .btn:hover {
+    background: white;
+    border-color: white;
+    color: var(--navy-blue);
+}
+
+@media (max-width: 768px) {
+    .podium-card {
+        margin-bottom: 1rem;
+    }
+    
+    .podium-card.position-1 {
+        transform: none;
+    }
+    
+    .ranking-table-section {
+        padding: 1rem;
+        overflow-x: auto;
+    }
+    
+    .ranking-table {
+        font-size: 0.9rem;
+    }
+    
+    .ranking-table th,
+    .ranking-table td {
+        padding: 0.5rem;
+    }
+    
+    .user-cell {
+        flex-direction: column;
+        align-items: start;
+        gap: 0.5rem;
+    }
+    
+    .user-avatar {
+        width: 30px;
+        height: 30px;
+        font-size: 0.8rem;
+    }
+}
+</style>
+{% endblock %}

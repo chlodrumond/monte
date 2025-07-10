@@ -2,7 +2,7 @@
 
 ## Overview
 
-Monte Academic Platform is a Flask-based web application designed as an academic platform with a mountaineering metaphor. The application features a minimalist design with a navy blue and gold color scheme, providing users with a homepage and login functionality. The platform is built using Flask as the backend framework with Bootstrap and custom CSS for the frontend.
+Monte Academic Platform is a comprehensive Django-based educational collaborative platform designed with a mountaineering metaphor. The application features a complete academic sharing system with user authentication, file uploads, rating system, and gamification through altitude points. Users can share educational materials, rate content, and climb virtual mountains based on their contributions to the academic community.
 
 ## User Preferences
 
@@ -11,17 +11,20 @@ Preferred communication style: Simple, everyday language.
 ## System Architecture
 
 ### Backend Architecture
-- **Framework**: Flask (Python web framework)
-- **Application Structure**: Simple monolithic structure with a single `app.py` file containing all routes
-- **Session Management**: Uses Flask's built-in session handling with a configurable secret key
-- **Proxy Support**: Configured with ProxyFix middleware for deployment behind reverse proxies
+- **Framework**: Django 5.2.4 (Python web framework)
+- **Application Structure**: Modular Django structure with `core` app containing all functionality
+- **Database**: SQLite (default Django ORM with custom models)
+- **Authentication**: Django's built-in authentication system with custom UserProfile extension
+- **File Management**: Django FileField with custom upload paths and validation
+- **Session Management**: Django's session framework with database backend
 
 ### Frontend Architecture
-- **Template Engine**: Jinja2 (Flask's default templating engine)
+- **Template Engine**: Django Templates with template inheritance
 - **CSS Framework**: Bootstrap 5.3.0 for responsive design and components
+- **Form Processing**: Django Forms with crispy-forms for enhanced styling
 - **Icon Library**: Font Awesome 6.4.0 for icons
 - **Typography**: Google Fonts (Crimson Text) for serif typography
-- **JavaScript**: Vanilla JavaScript for interactive components (hamburger menu)
+- **JavaScript**: Vanilla JavaScript for interactive components and form validation
 
 ### Design System
 - **Color Palette**: Navy blue (#0B1C2D) and gold (#CEB974) for brand consistency
@@ -31,41 +34,58 @@ Preferred communication style: Simple, everyday language.
 
 ## Key Components
 
-### 1. Application Entry Point (`app.py`)
-- Flask application initialization with security configurations
-- Route definitions for homepage and login functionality
-- Flash messaging system for user feedback
-- Basic form validation for login attempts
+### 1. Django Models (`core/models.py`)
+- **UserProfile**: Extended user information with altitude points and course
+- **Material**: Educational content with file uploads, metadata, and download tracking
+- **Avaliacao**: User ratings for materials with 1-5 star system
+- **Comentario**: User comments on materials
+- **Signal Handlers**: Automatic point assignment for user actions
 
-### 2. Template System
-- **Homepage (`templates/index.html`)**: Features centered logo, descriptive text, and hamburger menu
-- **Login Page (`templates/login.html`)**: Split-screen design with logo on left, form on right
-- Both templates include responsive design and accessibility features
+### 2. Views and URL Routing (`core/views.py`, `core/urls.py`)
+- **Authentication Views**: Custom signup with PUC-Rio email validation
+- **Material Management**: Upload, search, detail views with pagination
+- **User Profile**: Personal dashboard with activity tracking
+- **Ranking System**: Leaderboard based on altitude points
 
-### 3. Static Assets
-- **CSS (`static/css/style.css`)**: Custom styling with CSS variables for theme consistency
-- **JavaScript (`static/js/script.js`)**: Menu functionality and form validation
-- **Images**: Logo storage in `static/img/` directory
+### 3. Template System
+- **Base Template**: Common layout with navigation and messaging
+- **Homepage**: Welcome page with user progress display
+- **Authentication Pages**: Login and signup with validation
+- **Material Pages**: Upload forms, search results, detailed material view
+- **User Dashboard**: Profile management and activity overview
 
-### 4. User Interface Features
-- Hamburger menu with offcanvas sidebar navigation
-- Flash message system for user notifications
-- Responsive form layouts with proper validation feedback
-- Accessibility considerations (ARIA labels, keyboard navigation)
+### 4. Form Processing (`core/forms.py`)
+- **Custom User Creation**: Validates PUC-Rio email domain
+- **Material Upload**: File validation and metadata collection
+- **Search and Filter**: Advanced material discovery
+- **User Profile Management**: Account information updates
+
+### 5. Gamification System
+- **Mountain Progression**: Users advance through mountains based on points
+- **Point System**: Upload (50), Comment (10), Receive Rating (5)
+- **Ranking Display**: Competitive leaderboard with podium visualization
 
 ## Data Flow
 
-### Current Implementation
-1. **Homepage Access**: User visits root URL → Flask renders `index.html` template
-2. **Menu Interaction**: User clicks hamburger menu → JavaScript toggles offcanvas menu
-3. **Login Access**: User clicks "Acessar" → Redirects to `/login` route
-4. **Form Submission**: User submits login form → Flask processes POST request → Validates input → Shows flash message → Redirects to homepage
+### Complete Implementation
+1. **Homepage Access**: User visits root URL → Django renders homepage with user context
+2. **Authentication Flow**: 
+   - Signup: Validates PUC-Rio email → Creates user and profile → Auto-login
+   - Login: Django authentication → Redirects to user profile
+3. **Material Management**:
+   - Upload: File validation → Saves to user directory → Adds 50 altitude points
+   - Search: Query processing → Filtered results with pagination → Average ratings
+   - Detail View: Material info → Comments and ratings → Download tracking
+4. **Gamification**:
+   - Point accumulation through user actions
+   - Mountain progression based on altitude points
+   - Ranking updates automatically through Django signals
 
-### Authentication Flow (Current Demo)
-- Basic form validation (presence of email and password)
-- Flash message confirmation for demo purposes
-- No actual authentication or session management implemented
-- Ready for integration with proper authentication system
+### User Journey
+- New users register with PUC-Rio email and start at "Morro da Urca"
+- Contributing materials and engaging with content earns altitude points
+- Users progress through mountains: Urca → Pão de Açúcar → Pedra da Gávea → Pico da Neblina → Kilimanjaro → Everest
+- Social features encourage collaboration through comments and ratings
 
 ## External Dependencies
 
@@ -75,8 +95,10 @@ Preferred communication style: Simple, everyday language.
 - **Google Fonts**: Crimson Text font family for typography
 
 ### Python Dependencies
-- **Flask**: Web framework for routing and templating
-- **Werkzeug**: WSGI utilities (ProxyFix middleware)
+- **Django 5.2.4**: Web framework with ORM, authentication, and templating
+- **django-crispy-forms**: Enhanced form styling with Bootstrap integration
+- **crispy-bootstrap5**: Bootstrap 5 support for crispy forms
+- **Pillow**: Image processing for file upload validation
 
 ### Development Tools
 - Debug mode enabled for development
@@ -86,30 +108,47 @@ Preferred communication style: Simple, everyday language.
 ## Deployment Strategy
 
 ### Current Configuration
-- **Host**: Configured to run on `0.0.0.0` for container compatibility
-- **Port**: Default port 5000
+- **WSGI Application**: Django WSGI with Gunicorn server
+- **Host**: Configured to run on `0.0.0.0:5000` for container compatibility
 - **Debug Mode**: Enabled for development (should be disabled in production)
-- **Proxy Support**: ProxyFix middleware configured for reverse proxy deployment
+- **Static Files**: Collected and served through Django's static file system
+- **Media Files**: User uploads stored in `media/` directory with organized subdirectories
 
 ### Environment Variables
-- `SESSION_SECRET`: Configurable secret key for session security
-- Falls back to default value if not provided
+- Django secret key management
+- Database configuration (currently SQLite for development)
+- Media and static file paths configured
 
 ### Scalability Considerations
-- Single-file application structure is suitable for small applications
-- Ready for modularization as the application grows
-- Static file serving configured for development (production should use CDN or reverse proxy)
+- Modular Django architecture supports horizontal scaling
+- Database can be migrated to PostgreSQL for production
+- Static and media files ready for CDN deployment
+- Signal-based point system scales with user activity
 
 ### Security Features
-- CSRF protection ready for implementation
-- Session security with configurable secret key
-- Form validation foundation in place
-- Accessibility features implemented (ARIA labels, keyboard navigation)
+- **CSRF Protection**: Django's built-in CSRF middleware active
+- **User Authentication**: Secure login/logout with session management
+- **File Upload Validation**: Restricted file types and size limits (10MB max)
+- **Email Domain Validation**: Only @puc-rio.br emails accepted
+- **Input Sanitization**: Django's automatic SQL injection and XSS protection
+- **Access Control**: Login required for uploading, commenting, and downloading
 
-## Future Development Areas
+## Completed Features
 
-1. **Database Integration**: Ready for database implementation (likely PostgreSQL with potential Drizzle ORM integration)
-2. **Authentication System**: Foundation exists for implementing proper user authentication
-3. **User Management**: Session handling infrastructure ready for user state management
-4. **API Development**: Flask structure supports REST API development
-5. **Content Management**: Academic platform features can be built on existing foundation
+1. **✅ User Authentication**: Complete signup/login system with PUC-Rio email validation
+2. **✅ File Management**: Material upload with PDF/DOC support and download tracking
+3. **✅ Search System**: Advanced filtering by type, subject, and keyword search
+4. **✅ Rating System**: 5-star ratings with comments for all materials
+5. **✅ Gamification**: Mountain-based progression with altitude points
+6. **✅ User Profiles**: Personal dashboards with activity tracking
+7. **✅ Ranking System**: Competitive leaderboard with podium display
+8. **✅ Responsive Design**: Mobile-friendly interface with Bootstrap integration
+
+## Recent Changes (January 2025)
+
+- **🔄 Framework Migration**: Converted from Flask to Django for enhanced functionality
+- **➕ Database Models**: Implemented comprehensive data structure with relationships
+- **➕ Authentication System**: Added complete user management with profile extension
+- **➕ File Upload System**: Secure file handling with validation and organized storage
+- **➕ Gamification**: Introduced mountain-based point system with automatic progression
+- **➕ Social Features**: Added commenting and rating system for community engagement

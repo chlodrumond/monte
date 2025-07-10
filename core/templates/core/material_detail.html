@@ -1,0 +1,425 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}{{ material.titulo }} - Monte{% endblock %}
+
+{% block body_class %}material-detail-body{% endblock %}
+
+{% block content %}
+    <div class="material-detail-container">
+        <div class="container">
+            <div class="row">
+                <!-- Main Content -->
+                <div class="col-lg-8">
+                    <div class="material-header">
+                        <div class="d-flex align-items-start justify-content-between">
+                            <div>
+                                <h1 class="material-title">{{ material.titulo }}</h1>
+                                <div class="material-meta">
+                                    <span class="material-type badge bg-primary">{{ material.get_tipo_display }}</span>
+                                    <span class="material-subject">{{ material.materia }}</span>
+                                    <span class="material-level">{{ material.nivel_serie }}</span>
+                                </div>
+                            </div>
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'download_material' material.id %}" class="btn btn-primary">
+                                    <i class="fas fa-download"></i> Download
+                                </a>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="material-author">
+                            <i class="fas fa-user"></i>
+                            Por {{ material.user.first_name }} {{ material.user.last_name }}
+                            <small class="text-muted">• {{ material.created_at|date:"d/m/Y" }}</small>
+                        </div>
+                        
+                        <div class="material-stats">
+                            <div class="stat-item">
+                                <i class="fas fa-download"></i>
+                                <span>{{ material.downloads }} downloads</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fas fa-star"></i>
+                                <span>{{ material.avg_rating|floatformat:1 }}/5 ({{ material.total_ratings }} avaliações)</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fas fa-file"></i>
+                                <span>{{ material.file_size }}MB</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if material.descricao %}
+                        <div class="material-description">
+                            <h5>Descrição</h5>
+                            <p>{{ material.descricao|linebreaks }}</p>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Rating Section -->
+                    {% if user.is_authenticated %}
+                        <div class="rating-section">
+                            <h5>Avalie este material</h5>
+                            <form method="post" class="rating-form">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        {{ avaliacao_form.nota }}
+                                    </div>
+                                    <div class="col-md-8">
+                                        {{ avaliacao_form.comentario }}
+                                    </div>
+                                </div>
+                                <button type="submit" name="avaliacao_submit" class="btn btn-primary">
+                                    {% if user_rating %}Atualizar Avaliação{% else %}Enviar Avaliação{% endif %}
+                                </button>
+                            </form>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Comments Section -->
+                    <div class="comments-section">
+                        <h5>Comentários</h5>
+                        
+                        {% if user.is_authenticated %}
+                            <form method="post" class="comment-form">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    {{ comentario_form.texto }}
+                                </div>
+                                <button type="submit" name="comentario_submit" class="btn btn-outline-primary">
+                                    <i class="fas fa-comment"></i> Comentar
+                                </button>
+                            </form>
+                        {% endif %}
+                        
+                        <div class="comments-list">
+                            {% for comentario in material.comentarios.all %}
+                                <div class="comment-item">
+                                    <div class="comment-header">
+                                        <strong>{{ comentario.user.first_name }} {{ comentario.user.last_name }}</strong>
+                                        <small class="text-muted">{{ comentario.created_at|date:"d/m/Y H:i" }}</small>
+                                    </div>
+                                    <div class="comment-text">
+                                        {{ comentario.texto|linebreaks }}
+                                    </div>
+                                </div>
+                            {% empty %}
+                                <p class="text-muted">Nenhum comentário ainda. Seja o primeiro a comentar!</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sidebar -->
+                <div class="col-lg-4">
+                    <div class="sidebar-card">
+                        <h6>Avaliações</h6>
+                        <div class="rating-summary">
+                            <div class="rating-score">
+                                <span class="score">{{ material.avg_rating|floatformat:1 }}</span>
+                                <div class="stars">
+                                    {% for i in "12345" %}
+                                        {% if material.avg_rating >= i|add:0 %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <small>{{ material.total_ratings }} avaliação{{ material.total_ratings|pluralize:"ões" }}</small>
+                            </div>
+                        </div>
+                        
+                        <div class="recent-ratings">
+                            {% for avaliacao in material.avaliacoes.all|slice:":3" %}
+                                <div class="rating-item">
+                                    <div class="rating-header">
+                                        <strong>{{ avaliacao.user.first_name }}</strong>
+                                        <div class="rating-stars">
+                                            {% for i in "12345" %}
+                                                {% if avaliacao.nota >= i|add:0 %}
+                                                    <i class="fas fa-star"></i>
+                                                {% else %}
+                                                    <i class="far fa-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    {% if avaliacao.comentario %}
+                                        <p class="rating-comment">{{ avaliacao.comentario|truncatewords:15 }}</p>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="sidebar-card">
+                        <h6>Autor</h6>
+                        <div class="author-info">
+                            <h5>{{ material.user.first_name }} {{ material.user.last_name }}</h5>
+                            <p class="text-muted">{{ material.user.userprofile.curso }}</p>
+                            <div class="author-stats">
+                                <small>
+                                    <i class="fas fa-mountain"></i>
+                                    {{ material.user.userprofile.current_mountain }}
+                                </small>
+                                <small>
+                                    <i class="fas fa-file"></i>
+                                    {{ material.user.material_set.count }} materiais
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.material-detail-body {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.material-header {
+    background: white;
+    border-radius: 10px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.material-title {
+    color: var(--navy-blue);
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.material-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.material-type {
+    font-size: 0.8rem;
+}
+
+.material-subject {
+    color: var(--gold);
+    font-weight: 500;
+}
+
+.material-level {
+    color: #666;
+}
+
+.material-author {
+    color: #666;
+    margin-bottom: 1rem;
+}
+
+.material-stats {
+    display: flex;
+    gap: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #666;
+}
+
+.stat-item i {
+    color: var(--gold);
+}
+
+.material-description {
+    background: white;
+    border-radius: 10px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.material-description h5 {
+    color: var(--navy-blue);
+    margin-bottom: 1rem;
+}
+
+.rating-section,
+.comments-section {
+    background: white;
+    border-radius: 10px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.rating-section h5,
+.comments-section h5 {
+    color: var(--navy-blue);
+    margin-bottom: 1.5rem;
+}
+
+.rating-form,
+.comment-form {
+    margin-bottom: 2rem;
+}
+
+.comment-form .form-control {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.comments-list {
+    margin-top: 2rem;
+}
+
+.comment-item {
+    border-left: 3px solid var(--gold);
+    padding-left: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.comment-item:last-child {
+    border-bottom: none;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.comment-text {
+    color: #555;
+}
+
+.sidebar-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-card h6 {
+    color: var(--navy-blue);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.rating-summary {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.rating-score .score {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: var(--gold);
+    display: block;
+}
+
+.stars {
+    color: var(--gold);
+    margin: 0.5rem 0;
+}
+
+.recent-ratings {
+    border-top: 1px solid #e9ecef;
+    padding-top: 1rem;
+}
+
+.rating-item {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.rating-item:last-child {
+    margin-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.rating-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.rating-stars {
+    color: var(--gold);
+    font-size: 0.8rem;
+}
+
+.rating-comment {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 0;
+}
+
+.author-info h5 {
+    color: var(--navy-blue);
+    margin-bottom: 0.5rem;
+}
+
+.author-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 1rem;
+}
+
+.author-stats small {
+    color: #666;
+}
+
+.author-stats i {
+    color: var(--gold);
+    width: 16px;
+}
+
+@media (max-width: 768px) {
+    .material-header .d-flex {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .material-meta {
+        flex-wrap: wrap;
+    }
+    
+    .material-stats {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .rating-form .row {
+        row-gap: 1rem;
+    }
+    
+    .rating-header {
+        flex-direction: column;
+        align-items: start;
+        gap: 0.5rem;
+    }
+}
+</style>
+{% endblock %}
