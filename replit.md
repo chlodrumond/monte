@@ -135,7 +135,7 @@ Preferred communication style: Simple, everyday language.
 - **Material Upload**: Share academic materials with altitude rewards (50m per upload)
 - **Search & Filter**: Advanced search by type, subject, period, keywords, and tags
 - **Comments & Ratings**: Interactive feedback system with altitude rewards
-- **Mountain Progression**: 8-level gamification system with achievement tracking
+- **Mountain Progression**: 9-level gamification system starting at Sea Level with achievement tracking
 - **User Profiles**: Personal dashboard showing progress and mountain conquests
 - **Ranking System**: Community leaderboard based on altitude achievements
 - **Favorites System**: Users can save materials for later access
