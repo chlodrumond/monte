@@ -19,6 +19,17 @@ body {
     overflow-x: hidden;
 }
 
+/* Fix for registration/login page scrolling */
+.login-body, .signup-body {
+    overflow-y: auto !important;
+    min-height: 100vh;
+}
+
+.login-container, .signup-container {
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
 /* Homepage Styles */
 .homepage-body {
     background-color: var(--navy-blue);
@@ -164,13 +175,13 @@ body {
 
 /* Login Page Styles */
 .login-body {
-    height: 100vh;
-    overflow: hidden;
+    min-height: 100vh;
+    overflow-y: auto;
 }
 
 .login-container {
     display: flex;
-    height: 100vh;
+    min-height: 100vh;
 }
 
 .login-left {
@@ -332,7 +343,7 @@ body {
     .login-left,
     .login-right {
         flex: none;
-        height: 50vh;
+        min-height: 50vh;
     }
 
     .login-left {

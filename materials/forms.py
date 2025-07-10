@@ -100,18 +100,12 @@ class CustomLoginForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field('email', css_class='form-group mb-3'),
+            Field('username_or_email', css_class='form-group mb-3'),
             Field('password', css_class='form-group mb-3'),
             FormActions(
                 Submit('submit', 'Acessar', css_class='btn-acessar w-100')
             )
         )
-
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        if email and not email.endswith('@aluno.puc-rio.br'):
-            raise ValidationError('Email deve ser do domínio @aluno.puc-rio.br')
-        return email
 
 
 class MaterialForm(forms.ModelForm):

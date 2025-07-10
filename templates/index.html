@@ -24,11 +24,18 @@
                     <a href="{% url 'perfil' %}" class="access-btn mb-2">Meu Perfil</a>
                     <a href="{% url 'buscar_materiais' %}" class="access-btn mb-2">Buscar Materiais</a>
                     <a href="{% url 'upload_material' %}" class="access-btn mb-2">Enviar Material</a>
+                    <a href="{% url 'meus_favoritos' %}" class="access-btn mb-2">Meus Favoritos</a>
+                    <a href="{% url 'materiais_populares' %}" class="access-btn mb-2">Materiais Populares</a>
+                    <a href="{% url 'materiais_destaque' %}" class="access-btn mb-2">Em Destaque</a>
+                    <a href="{% url 'notificacoes_usuario' %}" class="access-btn mb-2">Notificações</a>
                     <a href="{% url 'ranking_usuarios' %}" class="access-btn mb-2">Ranking</a>
                     <a href="{% url 'logout' %}" class="access-btn">Sair</a>
                 {% else %}
                     <a href="{% url 'login' %}" class="access-btn mb-2">Entrar</a>
-                    <a href="{% url 'signup' %}" class="access-btn">Cadastrar</a>
+                    <a href="{% url 'signup' %}" class="access-btn mb-2">Cadastrar</a>
+                    <a href="{% url 'buscar_materiais' %}" class="access-btn mb-2">Explorar Materiais</a>
+                    <a href="{% url 'materiais_populares' %}" class="access-btn mb-2">Materiais Populares</a>
+                    <a href="{% url 'materiais_destaque' %}" class="access-btn">Em Destaque</a>
                 {% endif %}
             </nav>
         </div>

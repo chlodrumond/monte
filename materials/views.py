@@ -47,20 +47,30 @@ def custom_login(request):
     if request.method == 'POST':
         form = CustomLoginForm(request.POST)
         if form.is_valid():
-            email = form.cleaned_data['email']
+            username_or_email = form.cleaned_data['username_or_email']
             password = form.cleaned_data['password']
             
-            try:
-                user = User.objects.get(email=email)
-                user = authenticate(request, username=user.username, password=password)
-                if user is not None:
-                    login(request, user)
-                    messages.success(request, f'Bem-vindo de volta, {user.get_full_name()}!')
-                    return redirect('perfil')
-                else:
-                    messages.error(request, 'Senha incorreta.')
-            except User.DoesNotExist:
-                messages.error(request, 'Email não encontrado.')
+            # Try to find user by username or email
+            user = None
+            if '@' in username_or_email:
+                # It's an email
+                try:
+                    user_obj = User.objects.get(email=username_or_email)
+                    user = authenticate(request, username=user_obj.username, password=password)
+                except User.DoesNotExist:
+                    messages.error(request, 'Email não encontrado.')
+            else:
+                # It's a username
+                user = authenticate(request, username=username_or_email, password=password)
+                if user is None:
+                    messages.error(request, 'Usuário ou senha incorretos.')
+            
+            if user is not None:
+                login(request, user)
+                messages.success(request, f'Bem-vindo de volta, {user.get_full_name()}!')
+                return redirect('perfil')
+            elif '@' not in username_or_email:
+                messages.error(request, 'Usuário ou senha incorretos.')
     
     return render(request, 'registration/login.html', {'form': form})
 
