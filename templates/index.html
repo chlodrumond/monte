@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monte - Plataforma Acadêmica</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="homepage-body">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Hamburger Menu Button -->
+    <button class="hamburger-menu" id="hamburgerBtn" aria-label="Menu">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Offcanvas Menu -->
+    <div class="offcanvas-menu" id="offcanvasMenu">
+        <div class="offcanvas-header">
+            <button class="close-btn" id="closeBtn" aria-label="Fechar menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="offcanvas-body">
+            <nav class="offcanvas-nav">
+                <a href="{{ url_for('login') }}" class="access-btn">Acessar</a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Main Content -->
+    <main class="homepage-main">
+        <div class="container">
+            <div class="content-wrapper">
+                <!-- Logo -->
+                <div class="logo-container">
+                    <img src="{{ url_for('static', filename='img/logo-monte.png') }}" alt="Monte Logo" class="logo">
+                </div>
+
+                <!-- Content Text -->
+                <div class="content-text">
+                    <p class="paragraph">
+                        Assim como uma montanha, cada passo dado em sua jornada acadêmica é um avanço significativo. No Monte, você sobe por etapas, contribuindo com suas ideias, compartilhando seu conhecimento e colaborando com outros. A cada novo desafio, você vai mais alto e mais longe.
+                    </p>
+                    
+                    <p class="paragraph">
+                        Ao atingir o topo de cada montanha, você deixa uma marca única, uma bandeira personalizada, simbolizando sua conquista. Cada pico que você alcança reflete o esforço e a dedicação que você teve no caminho. E, à medida que você conquista mais picos, novas montanhas aparecem, desafiando você a continuar sua jornada de forma ainda mais grandiosa.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
