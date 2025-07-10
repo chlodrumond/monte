@@ -81,10 +81,11 @@ class CustomUserCreationForm(UserCreationForm):
 
 
 class CustomLoginForm(forms.Form):
-    """Formulário personalizado de login com validação de email PUC-Rio"""
-    email = forms.EmailField(
-        widget=forms.EmailInput(attrs={
-            'placeholder': 'Email',
+    """Formulário personalizado de login - username ou email"""
+    username_or_email = forms.CharField(
+        label='Usuário ou Email',
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Nome de usuário ou email',
             'class': 'form-control'
         })
     )
