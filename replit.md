@@ -121,6 +121,13 @@ Preferred communication style: Simple, everyday language.
 9. **Content Curation**: Implemented featured materials, popularity algorithm, view tracking
 10. **Enhanced Search**: Added tags system for better material discovery
 11. **Database Enhancement**: Added new fields (visualizations, featured status, tags) and models
+12. **UI Cleanup**: Removed all emojis from navigation for cleaner interface (July 10, 2025)
+13. **Form Fixes**: Added submit buttons to login and registration forms (July 10, 2025)
+14. **Featured Materials Redesign**: Complete minimalistic redesign of materiais em destaque page (July 10, 2025)
+15. **Period System Update**: Removed G1-G10 period system, replaced with G1-G4 grau system for academic assessments (July 10, 2025)
+16. **Database Cleanup**: Cleared all auto-generated materials for authentic content upload by user group (July 10, 2025)
+17. **Social Models**: Added UserFollow and ChatRoom/ChatMessage models for user interaction (July 10, 2025)
+18. **Profile Enhancement**: Added profile settings button in bottom right corner (July 10, 2025)
 
 ## Current Features
 

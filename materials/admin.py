@@ -21,8 +21,8 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 @admin.register(Material)
 class MaterialAdmin(admin.ModelAdmin):
-    list_display = ['titulo', 'autor', 'tipo', 'materia', 'serie', 'data_upload', 'downloads', 'visualizacoes', 'destaque']
-    list_filter = ['tipo', 'serie', 'data_upload', 'destaque']
+    list_display = ['titulo', 'autor', 'tipo', 'materia', 'grau', 'data_upload', 'downloads', 'visualizacoes', 'destaque']
+    list_filter = ['tipo', 'grau', 'data_upload', 'destaque']
     search_fields = ['titulo', 'descricao', 'materia', 'autor__username', 'tags']
     date_hierarchy = 'data_upload'
     list_editable = ['destaque']

@@ -113,7 +113,7 @@ class MaterialForm(forms.ModelForm):
     
     class Meta:
         model = Material
-        fields = ['titulo', 'descricao', 'tipo', 'materia', 'serie', 'arquivo', 'tags']
+        fields = ['titulo', 'descricao', 'tipo', 'materia', 'grau', 'arquivo', 'tags']
         widgets = {
             'titulo': forms.TextInput(attrs={'placeholder': 'Título do material'}),
             'descricao': forms.Textarea(attrs={
@@ -135,7 +135,7 @@ class MaterialForm(forms.ModelForm):
             Field('descricao', css_class='form-group mb-3'),
             Row(
                 Column('tipo', css_class='form-group col-md-6 mb-3'),
-                Column('serie', css_class='form-group col-md-6 mb-3'),
+                Column('grau', css_class='form-group col-md-6 mb-3'),
             ),
             Field('materia', css_class='form-group mb-3'),
             Field('arquivo', css_class='form-group mb-3'),
@@ -206,8 +206,8 @@ class BuscaForm(forms.Form):
         required=False,
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-    serie = forms.ChoiceField(
-        choices=[('', 'Todos os períodos')] + Material.SERIE_CHOICES,
+    grau = forms.ChoiceField(
+        choices=[('', 'Todos os graus')] + Material.GRAU_CHOICES,
         required=False,
         widget=forms.Select(attrs={'class': 'form-control'})
     )
@@ -231,7 +231,7 @@ class BuscaForm(forms.Form):
             ),
             Row(
                 Column('tipo', css_class='form-group col-md-6 mb-3'),
-                Column('serie', css_class='form-group col-md-6 mb-3'),
+                Column('grau', css_class='form-group col-md-6 mb-3'),
             ),
             FormActions(
                 Submit('submit', 'Buscar', css_class='btn btn-primary')

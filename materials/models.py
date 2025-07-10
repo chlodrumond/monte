@@ -106,24 +106,18 @@ class Material(models.Model):
         ('outros', 'Outros'),
     ]
     
-    SERIE_CHOICES = [
-        ('G1', 'G1 (1º Período)'),
-        ('G2', 'G2 (2º Período)'),
-        ('G3', 'G3 (3º Período)'),
-        ('G4', 'G4 (4º Período)'),
-        ('G5', 'G5 (5º Período)'),
-        ('G6', 'G6 (6º Período)'),
-        ('G7', 'G7 (7º Período)'),
-        ('G8', 'G8 (8º Período)'),
-        ('G9', 'G9 (9º Período)'),
-        ('G10', 'G10 (10º Período)'),
+    GRAU_CHOICES = [
+        ('G1', 'G1'),
+        ('G2', 'G2'),
+        ('G3', 'G3'),
+        ('G4', 'G4'),
     ]
     
     titulo = models.CharField(max_length=200, verbose_name="Título")
     descricao = models.TextField(verbose_name="Descrição")
     tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, verbose_name="Tipo")
     materia = models.CharField(max_length=100, verbose_name="Matéria")
-    serie = models.CharField(max_length=3, choices=SERIE_CHOICES, verbose_name="Período")
+    grau = models.CharField(max_length=3, choices=GRAU_CHOICES, verbose_name="Grau", blank=True)
     arquivo = models.FileField(upload_to='materiais/', verbose_name="Arquivo")
     autor = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Autor")
     data_upload = models.DateTimeField(auto_now_add=True, verbose_name="Data de Upload")
