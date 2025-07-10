@@ -19,6 +19,17 @@ body {
     overflow-x: hidden;
 }
 
+/* Fix for registration/login page scrolling */
+.login-body, .signup-body {
+    overflow-y: auto !important;
+    min-height: 100vh;
+}
+
+.login-container, .signup-container {
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
 /* Homepage Styles */
 .homepage-body {
     background-color: var(--navy-blue);
@@ -164,13 +175,13 @@ body {
 
 /* Login Page Styles */
 .login-body {
-    height: 100vh;
-    overflow: hidden;
+    min-height: 100vh;
+    overflow-y: auto;
 }
 
 .login-container {
     display: flex;
-    height: 100vh;
+    min-height: 100vh;
 }
 
 .login-left {
@@ -304,6 +315,58 @@ body {
     max-width: 500px;
 }
 
+/* Profile Settings Button */
+.profile-settings-btn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+}
+
+.settings-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    background-color: var(--gold);
+    color: var(--navy-blue);
+    border-radius: 50%;
+    text-decoration: none;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: var(--transition);
+}
+
+.settings-btn:hover {
+    background-color: var(--navy-blue);
+    color: var(--gold);
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Update access buttons with better styling */
+.access-btn {
+    display: block;
+    background-color: var(--navy-blue);
+    color: var(--white);
+    padding: 1rem 1.5rem;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: var(--transition);
+    font-weight: 500;
+    text-align: center;
+    border: 2px solid transparent;
+}
+
+.access-btn:hover {
+    background-color: var(--gold);
+    color: var(--navy-blue);
+    border-color: var(--navy-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .hamburger-menu {
@@ -332,7 +395,7 @@ body {
     .login-left,
     .login-right {
         flex: none;
-        height: 50vh;
+        min-height: 50vh;
     }
 
     .login-left {
