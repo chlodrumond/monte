@@ -21,23 +21,11 @@
         <div class="offcanvas-body">
             <nav class="offcanvas-nav">
                 {% if user.is_authenticated %}
-                    <a href="{% url 'perfil' %}" class="access-btn mb-2">Meu Perfil</a>
-                    <a href="{% url 'buscar_materiais' %}" class="access-btn mb-2">Buscar Materiais</a>
-                    <a href="{% url 'upload_material' %}" class="access-btn mb-2">Enviar Material</a>
-                    <a href="{% url 'meus_favoritos' %}" class="access-btn mb-2">Meus Favoritos</a>
-                    <a href="{% url 'materiais_populares' %}" class="access-btn mb-2">Materiais Populares</a>
-                    <a href="{% url 'materiais_destaque' %}" class="access-btn mb-2">Em Destaque</a>
-                    <a href="{% url 'notificacoes_usuario' %}" class="access-btn mb-2">Notificações</a>
-                    <a href="{% url 'ranking_usuarios' %}" class="access-btn mb-2">Ranking</a>
-                    <a href="#" class="access-btn mb-2">Seguindo</a>
-                    <a href="#" class="access-btn mb-2">Chat</a>
+                    <a href="{% url 'perfil' %}" class="access-btn mb-2">Visualizar Perfil</a>
                     <a href="{% url 'logout' %}" class="access-btn">Sair</a>
                 {% else %}
                     <a href="{% url 'login' %}" class="access-btn mb-2">Entrar</a>
-                    <a href="{% url 'signup' %}" class="access-btn mb-2">Cadastrar</a>
-                    <a href="{% url 'buscar_materiais' %}" class="access-btn mb-2">Explorar Materiais</a>
-                    <a href="{% url 'materiais_populares' %}" class="access-btn mb-2">Materiais Populares</a>
-                    <a href="{% url 'materiais_destaque' %}" class="access-btn">Em Destaque</a>
+                    <a href="{% url 'signup' %}" class="access-btn">Cadastrar</a>
                 {% endif %}
             </nav>
         </div>
@@ -66,40 +54,10 @@
                     </p>
                 </div>
                 
-                {% if user.is_authenticated %}
-                    <div class="stats-section mt-5">
-                        <div class="row text-center">
-                            <div class="col-md-4">
-                                <div class="stat-card">
-                                    <h3 class="stat-number">{{ total_materiais }}</h3>
-                                    <p class="stat-label">Materiais Compartilhados</p>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="stat-card">
-                                    <h3 class="stat-number">{{ total_usuarios }}</h3>
-                                    <p class="stat-label">Exploradores Ativos</p>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="stat-card">
-                                    <h3 class="stat-number">{{ user.profile.altitude_total }}m</h3>
-                                    <p class="stat-label">Sua Altitude</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
+
             </div>
         </div>
     </main>
 
-    <!-- Profile Settings Button (Bottom Right) -->
-    {% if user.is_authenticated %}
-        <div class="profile-settings-btn">
-            <a href="{% url 'perfil' %}" class="settings-btn" title="Configurações do Perfil">
-                <i class="fas fa-user-cog"></i>
-            </a>
-        </div>
-    {% endif %}
+
 {% endblock %}

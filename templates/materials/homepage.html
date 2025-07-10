@@ -1,0 +1,393 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Monte - Homepage{% endblock %}
+{% block body_class %}homepage-body{% endblock %}
+
+{% block content %}
+
+    <!-- Hamburger Menu Button -->
+    <button class="hamburger-menu" id="hamburgerBtn" aria-label="Menu">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Offcanvas Menu -->
+    <div class="offcanvas-menu" id="offcanvasMenu">
+        <div class="offcanvas-header">
+            <button class="close-btn" id="closeBtn" aria-label="Fechar menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="offcanvas-body">
+            <nav class="offcanvas-nav">
+                <a href="{% url 'homepage' %}" class="access-btn mb-2">Homepage</a>
+                <a href="{% url 'buscar_materiais' %}" class="access-btn mb-2">Buscar Materiais</a>
+                <a href="{% url 'upload_material' %}" class="access-btn mb-2">Enviar Material</a>
+                <a href="{% url 'meus_favoritos' %}" class="access-btn mb-2">Meus Favoritos</a>
+                <a href="{% url 'materiais_populares' %}" class="access-btn mb-2">Materiais Populares</a>
+                <a href="{% url 'materiais_destaque' %}" class="access-btn mb-2">Em Destaque</a>
+                <a href="{% url 'notificacoes_usuario' %}" class="access-btn mb-2">Notificações</a>
+                <a href="{% url 'ranking_usuarios' %}" class="access-btn mb-2">Ranking</a>
+                <div class="menu-divider"></div>
+                <a href="{% url 'perfil' %}" class="access-btn mb-2">Visualizar Perfil</a>
+                <a href="{% url 'logout' %}" class="access-btn">Sair</a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Main Content -->
+    <main class="homepage-main">
+        <div class="container-fluid">
+            <!-- Welcome Section -->
+            <div class="welcome-section mb-4">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h1 class="welcome-title">Bem-vindo, {{ user.get_full_name }}!</h1>
+                        <p class="welcome-subtitle">{{ user.profile.montanha_atual.name }} - {{ user.profile.altitude_total }}m de altitude</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div class="altitude-badge">
+                            <i class="fas fa-mountain"></i>
+                            <span>{{ user.profile.altitude_total }}m</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="stats-section mb-4">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <i class="fas fa-file-alt stat-icon"></i>
+                            <h3 class="stat-number">{{ materiais_usuario.count }}</h3>
+                            <p class="stat-label">Meus Materiais</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <i class="fas fa-heart stat-icon"></i>
+                            <h3 class="stat-number">{{ favoritos_count }}</h3>
+                            <p class="stat-label">Favoritos</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <i class="fas fa-bell stat-icon"></i>
+                            <h3 class="stat-number">{{ notificacoes_nao_lidas }}</h3>
+                            <p class="stat-label">Notificações</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <i class="fas fa-users stat-icon"></i>
+                            <h3 class="stat-number">{{ total_usuarios }}</h3>
+                            <p class="stat-label">Exploradores</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Materiais do Período Atual -->
+            <div class="current-materials-section">
+                <div class="section-header mb-3">
+                    <h2 class="section-title">Materiais do Período Atual</h2>
+                    <a href="{% url 'buscar_materiais' %}" class="btn btn-outline-primary">Ver Todos</a>
+                </div>
+
+                {% if materiais_periodo %}
+                    <div class="materials-grid">
+                        {% for material in materiais_periodo %}
+                            <div class="material-card">
+                                <div class="material-header">
+                                    <h5 class="material-title">{{ material.titulo }}</h5>
+                                    <span class="material-type">{{ material.get_tipo_display }}</span>
+                                </div>
+                                <div class="material-info">
+                                    <p class="material-subject">{{ material.materia }}</p>
+                                    <p class="material-description">{{ material.descricao|truncatechars:100 }}</p>
+                                </div>
+                                <div class="material-meta">
+                                    <span class="material-author">{{ material.autor.get_full_name }}</span>
+                                    <span class="material-grade">{{ material.get_grau_display }}</span>
+                                </div>
+                                <div class="material-actions">
+                                    <a href="{% url 'detalhe_material' material.id %}" class="btn btn-sm btn-primary">Ver Detalhes</a>
+                                    {% if material.arquivo %}
+                                        <a href="{% url 'download_material' material.id %}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-folder-open"></i>
+                        <h4>Nenhum material encontrado</h4>
+                        <p>Ainda não há materiais compartilhados para o período atual.</p>
+                        <a href="{% url 'upload_material' %}" class="btn btn-primary">Seja o Primeiro a Compartilhar</a>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Materiais Recentes -->
+            <div class="recent-materials-section mt-5">
+                <div class="section-header mb-3">
+                    <h2 class="section-title">Materiais Recentes</h2>
+                    <a href="{% url 'materiais_populares' %}" class="btn btn-outline-primary">Ver Populares</a>
+                </div>
+
+                {% if materiais_recentes %}
+                    <div class="row">
+                        {% for material in materiais_recentes %}
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div class="recent-material-card">
+                                    <h6 class="recent-title">{{ material.titulo }}</h6>
+                                    <p class="recent-subject">{{ material.materia }}</p>
+                                    <div class="recent-meta">
+                                        <small class="text-muted">{{ material.autor.get_full_name }}</small>
+                                        <small class="text-muted">{{ material.data_upload|timesince }} atrás</small>
+                                    </div>
+                                    <a href="{% url 'detalhe_material' material.id %}" class="btn btn-sm btn-outline-primary mt-2">Ver</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+
+    <!-- Profile Settings Button (Bottom Right) -->
+    <div class="profile-settings-btn">
+        <a href="{% url 'perfil' %}" class="settings-btn" title="Configurações do Perfil">
+            <i class="fas fa-user-cog"></i>
+        </a>
+    </div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.welcome-section {
+    background: linear-gradient(135deg, #0B1C2D 0%, #1a3446 100%);
+    padding: 2rem;
+    border-radius: 15px;
+    color: white;
+    margin-bottom: 2rem;
+}
+
+.welcome-title {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.welcome-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin-bottom: 0;
+}
+
+.altitude-badge {
+    background: rgba(206, 185, 116, 0.2);
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    text-align: center;
+    border: 2px solid #CEB974;
+}
+
+.altitude-badge i {
+    font-size: 1.5rem;
+    color: #CEB974;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.altitude-badge span {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #CEB974;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-icon {
+    font-size: 2rem;
+    color: #0B1C2D;
+    margin-bottom: 1rem;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #0B1C2D;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #0B1C2D;
+    padding-bottom: 1rem;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #0B1C2D;
+    margin-bottom: 0;
+}
+
+.materials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.material-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.material-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+}
+
+.material-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.material-title {
+    font-weight: 600;
+    color: #0B1C2D;
+    margin-bottom: 0;
+    flex: 1;
+}
+
+.material-type {
+    background: #CEB974;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.material-subject {
+    font-weight: 500;
+    color: #0B1C2D;
+    margin-bottom: 0.5rem;
+}
+
+.material-description {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.material-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.material-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.recent-material-card {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.recent-title {
+    font-weight: 600;
+    color: #0B1C2D;
+    margin-bottom: 0.5rem;
+}
+
+.recent-subject {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.recent-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: #CEB974;
+    margin-bottom: 1rem;
+}
+
+.menu-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.2);
+    margin: 1rem 0;
+}
+
+@media (max-width: 768px) {
+    .materials-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .welcome-title {
+        font-size: 1.5rem;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+}
+</style>
+{% endblock %}

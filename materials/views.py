@@ -31,24 +31,60 @@ from .forms import (
 
 
 def index(request):
-    """Homepage com informações da plataforma"""
-    # Estatísticas para mostrar na homepage
+    """Página inicial introdutória - redireciona usuários logados para homepage"""
+    if request.user.is_authenticated:
+        return redirect('homepage')
+    
+    # Estatísticas básicas para página introdutória
     total_materiais = Material.objects.count()
     total_usuarios = User.objects.count()
-    materiais_recentes = Material.objects.select_related('autor').order_by('-data_upload')[:3]
     
     context = {
         'total_materiais': total_materiais,
         'total_usuarios': total_usuarios,
-        'materiais_recentes': materiais_recentes,
     }
     return render(request, 'index.html', context)
+
+
+@login_required
+def homepage(request):
+    """Homepage interna para usuários logados com materiais do período atual"""
+    user_profile = request.user.profile
+    
+    # Materiais do usuário
+    materiais_usuario = Material.objects.filter(autor=request.user)
+    
+    # Contagem de favoritos
+    favoritos_count = MaterialFavorito.objects.filter(usuario=request.user).count()
+    
+    # Notificações não lidas
+    notificacoes_nao_lidas = Notificacao.objects.filter(usuario=request.user, lida=False).count()
+    
+    # Total de usuários
+    total_usuarios = User.objects.filter(is_active=True).count()
+    
+    # Materiais do período atual (todos os materiais recentes por enquanto)
+    # Você pode filtrar por período específico aqui
+    materiais_periodo = Material.objects.select_related('autor').order_by('-data_upload')[:12]
+    
+    # Materiais recentes para seção secundária
+    materiais_recentes = Material.objects.select_related('autor').order_by('-data_upload')[:6]
+    
+    context = {
+        'materiais_usuario': materiais_usuario,
+        'favoritos_count': favoritos_count,
+        'notificacoes_nao_lidas': notificacoes_nao_lidas,
+        'total_usuarios': total_usuarios,
+        'materiais_periodo': materiais_periodo,
+        'materiais_recentes': materiais_recentes,
+    }
+    return render(request, 'materials/homepage.html', context)
 
 
 def custom_login(request):
     """View personalizada de login com validação de email PUC-Rio"""
     if request.user.is_authenticated:
-        return redirect('perfil')
+        return redirect('homepage')
     
     form = CustomLoginForm()
     
@@ -77,7 +113,7 @@ def custom_login(request):
                 if user.is_active:
                     login(request, user)
                     messages.success(request, f'Bem-vindo de volta, {user.get_full_name()}!')
-                    return redirect('perfil')
+                    return redirect('homepage')
                 else:
                     messages.error(request, 'Conta não ativada. Verifique seu email para ativar a conta.')
             elif '@' not in username_or_email:
@@ -89,7 +125,7 @@ def custom_login(request):
 def signup(request):
     """Cadastro de usuários com validação de email PUC-Rio e confirmação por email"""
     if request.user.is_authenticated:
-        return redirect('perfil')
+        return redirect('homepage')
     
     form = CustomUserCreationForm()
     
@@ -230,7 +266,7 @@ def upload_material(request):
             else:
                 messages.success(request, 'Material enviado com sucesso!')
             
-            return redirect('perfil')
+            return redirect('homepage')
     
     return render(request, 'materials/upload.html', {'form': form})
 

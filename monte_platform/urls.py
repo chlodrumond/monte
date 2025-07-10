@@ -23,6 +23,7 @@ from materials import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
+    path('homepage/', views.homepage, name='homepage'),
     path('login/', views.custom_login, name='login'),
     path('signup/', views.signup, name='signup'),
     path('logout/', views.logout_view, name='logout'),

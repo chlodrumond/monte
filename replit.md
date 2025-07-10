@@ -128,6 +128,8 @@ Preferred communication style: Simple, everyday language.
 16. **Database Cleanup**: Cleared all auto-generated materials for authentic content upload by user group (July 10, 2025)
 17. **Social Models**: Added UserFollow and ChatRoom/ChatMessage models for user interaction (July 10, 2025)
 18. **Profile Enhancement**: Added profile settings button in bottom right corner (July 10, 2025)
+19. **Two-Tier Navigation**: Restructured navigation with introductory homepage for anonymous users and internal homepage for logged-in users (July 10, 2025)
+20. **Sea Level Starting Point**: Updated mountain progression to start at "Sea Level" (0-49m) for users who haven't contributed yet (July 10, 2025)
 
 ## Current Features
 
