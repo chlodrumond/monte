@@ -1,0 +1,35 @@
+Crie um site com duas páginas HTML conectadas entre si: uma homepage e uma página de login.
+
+1. **Homepage:**
+   - Fundo azul-marinho (#0B1C2D).
+   - Centralize o logo fornecido chamado `logo-monte.png` (está na pasta `static/img/`).
+   - Abaixo do logo, inclua dois parágrafos com os seguintes textos (centralizados e com cor dourada #CEB974):
+
+     > Assim como uma montanha, cada passo dado em sua jornada acadêmica é um avanço significativo. No Monte, você sobe por etapas, contribuindo com suas ideias, compartilhando seu conhecimento e colaborando com outros. A cada novo desafio, você vai mais alto e mais longe.
+     >
+     > Ao atingir o topo de cada montanha, você deixa uma marca única, uma bandeira personalizada, simbolizando sua conquista. Cada pico que você alcança reflete o esforço e a dedicação que você teve no caminho. E, à medida que você conquista mais picos, novas montanhas aparecem, desafiando você a continuar sua jornada de forma ainda mais grandiosa.
+
+   - No canto superior direito, coloque um **ícone de "menu hamburguer" (três traços)**.
+   - Ao clicar no menu, **abre uma faixa lateral direita (offcanvas menu)** com fundo branco.
+     - Dentro dessa faixa, adicione um botão “Acessar” que redireciona para a página `login.html`.
+
+2. **Página de Login (login.html):**
+   - Divida a tela horizontalmente em duas partes (layout responsivo):
+     - Lado esquerdo com fundo azul-marinho (#0B1C2D) contendo o logo centralizado.
+     - Lado direito com fundo branco contendo o título “Retome Seu Progresso”.
+     - Campos de entrada para:
+       - Email (placeholder: "Email")
+       - Senha (placeholder: "Senha")
+     - Um botão azul-marinho escrito “Acessar”.
+   - Faça com que o formulário funcione como um esboço, não precisa de backend.
+
+3. Use apenas HTML, CSS e JavaScript. Todo o estilo deve ser incluído via CSS externo (ou style tag).
+4. Nomeie os arquivos:
+   - `index.html` (homepage)
+   - `login.html` (formulário de login)
+   - `style.css` (estilos globais)
+   - `script.js` (abre e fecha o menu lateral)
+
+5. O design deve ser minimalista, responsivo e elegante, como os exemplos enviados. Use fontes serifadas ou parecidas com a fonte Seasons. Não gere logos automáticos: apenas inclua a imagem real chamada `logo-monte.png`.
+
+Pronto para ser copiado para um projeto Django como template HTML.
